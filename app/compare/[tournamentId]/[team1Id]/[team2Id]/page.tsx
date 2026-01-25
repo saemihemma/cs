@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { generateIntelReport, getTeamMapWinRate, getTeamMapWinRateTopN } from '@/lib/intel/report';
+import { generateIntelReport, getMapStatsForTeam, getTeamMapTotalGames, getTeamMapWinRate, getTeamMapWinRateTopN } from '@/lib/intel/report';
 import { CS2_MAPS } from '@/lib/intel/types';
 import { CompareContent } from './CompareContent';
 
@@ -61,39 +61,29 @@ export default async function ComparePage({ params, searchParams }: Props) {
   const team1 = report1.opponentTeam;
   const team2 = report2.opponentTeam;
 
-  // Calculate map comparisons
-  const mapComparisons = CS2_MAPS.map(mapName => {
-    const team1WinRate = useTop5
-      ? getTeamMapWinRateTopN(team1, mapName, 5)
-      : getTeamMapWinRate(team1, mapName);
-    const team2WinRate = useTop5
-      ? getTeamMapWinRateTopN(team2, mapName, 5)
-      : getTeamMapWinRate(team2, mapName);
+  const team1View = useTop5 ? { ...team1, players: team1.players.slice(0, 5) } : team1;
+  const team2View = useTop5 ? { ...team2, players: team2.players.slice(0, 5) } : team2;
 
-    const delta = team1WinRate !== null && team2WinRate !== null
-      ? team1WinRate - team2WinRate
-      : null;
-
-    return { map: mapName, team1WinRate, team2WinRate, delta };
+  const team1MapStats = CS2_MAPS.map((mapName) => {
+    const teamAvg = useTop5 ? getTeamMapWinRateTopN(team1, mapName, 5) : getTeamMapWinRate(team1, mapName);
+    const teamGames = getTeamMapTotalGames(team1View, mapName);
+    const playerStats = getMapStatsForTeam(team1View, mapName);
+    return { mapName, teamAvg, teamGames, playerStats };
   });
 
-  // Calculate summary stats
-  const validComparisons = mapComparisons.filter(c => c.delta !== null);
-  const avgDelta = validComparisons.length > 0
-    ? validComparisons.reduce((sum, c) => sum + (c.delta || 0), 0) / validComparisons.length
-    : null;
-
-  const team1Advantages = validComparisons.filter(c => (c.delta || 0) > 0).length;
-  const team2Advantages = validComparisons.filter(c => (c.delta || 0) < 0).length;
+  const team2MapStats = CS2_MAPS.map((mapName) => {
+    const teamAvg = useTop5 ? getTeamMapWinRateTopN(team2, mapName, 5) : getTeamMapWinRate(team2, mapName);
+    const teamGames = getTeamMapTotalGames(team2View, mapName);
+    const playerStats = getMapStatsForTeam(team2View, mapName);
+    return { mapName, teamAvg, teamGames, playerStats };
+  });
 
   return (
     <CompareContent
-      team1={team1}
-      team2={team2}
-      mapComparisons={mapComparisons}
-      avgDelta={avgDelta}
-      team1Advantages={team1Advantages}
-      team2Advantages={team2Advantages}
+      team1={team1View}
+      team2={team2View}
+      team1MapStats={team1MapStats}
+      team2MapStats={team2MapStats}
       useTop5={useTop5}
       tournamentId={tournamentId}
       team1Id={team1Id}

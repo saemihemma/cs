@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { fadeUpVariants, vsTeam1Variants, vsTeam2Variants, vsTextVariants, containerVariants } from '@/lib/design/animations';
-import { DeltaBadge, TugOfWarBar } from '@/components/data/DeltaIndicator';
+import { containerVariants, fadeUpVariants } from '@/lib/design/animations';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { clsx } from 'clsx';
@@ -11,54 +10,190 @@ import { clsx } from 'clsx';
 interface Team {
   lineupId: string;
   teamName: string;
-  players: Array<{ steamId: string }>;
-}
-
-interface MapComparison {
-  map: string;
-  team1WinRate: number | null;
-  team2WinRate: number | null;
-  delta: number | null;
+  players: Player[];
 }
 
 interface CompareContentProps {
   team1: Team;
   team2: Team;
-  mapComparisons: MapComparison[];
-  avgDelta: number | null;
-  team1Advantages: number;
-  team2Advantages: number;
+  team1MapStats: MapStatEntry[];
+  team2MapStats: MapStatEntry[];
   useTop5: boolean;
   tournamentId: string;
   team1Id: string;
   team2Id: string;
 }
 
-function getDeltaColor(delta: number): string {
-  if (delta > 5) return '#22C55E';
-  if (delta > 0) return '#84CC16';
-  if (delta < -5) return '#EF4444';
-  if (delta < 0) return '#F97316';
-  return '#9CA3AF';
+interface Player {
+  steamId: string;
+  username: string;
+  faceitNickname: string | null;
+  faceitLevel: number;
+  faceitElo: number;
+  totalMatches: number;
+  kdRatio: number | null;
+  mapStats: Array<{ map: string; matches: number; wins: number; winRate: number }>;
 }
 
-function deltaBg(delta: number | null) {
-  const c = delta === null ? 'rgba(255,255,255,0.08)' : `${getDeltaColor(delta)}33`;
-  return `radial-gradient(circle at 30% 20%, ${c} 0%, transparent 65%)`;
+interface MapStatEntry {
+  mapName: string;
+  teamAvg: number | null;
+  teamGames: number;
+  playerStats: Array<{
+    player: Player;
+    stats: { matches: number; wins: number; winRate: number } | null;
+  }>;
+}
+
+function displayName(p: Player) {
+  return p.faceitNickname || p.username;
+}
+
+function getWinRateColor(winRate: number): string {
+  if (winRate >= 55) return '#22C55E';
+  if (winRate >= 50) return '#84CC16';
+  if (winRate >= 45) return '#EAB308';
+  return '#EF4444';
+}
+
+function getWinRateBgClass(winRate: number): string {
+  if (winRate >= 55) return 'bg-green-500/25';
+  if (winRate >= 50) return 'bg-lime-500/20';
+  if (winRate >= 45) return 'bg-yellow-500/20';
+  return 'bg-red-500/20';
+}
+
+function deltaTone(delta: number) {
+  if (delta > 5) return { text: 'text-green-400', bg: 'bg-green-500/15 border-green-500/30' };
+  if (delta > 0) return { text: 'text-lime-400', bg: 'bg-lime-500/15 border-lime-500/30' };
+  if (delta < -5) return { text: 'text-red-400', bg: 'bg-red-500/15 border-red-500/30' };
+  if (delta < 0) return { text: 'text-orange-400', bg: 'bg-orange-500/15 border-orange-500/30' };
+  return { text: 'text-gray-400', bg: 'bg-white/5 border-white/10' };
+}
+
+function DeepMapTable({
+  team,
+  mapStats,
+}: {
+  team: Team;
+  mapStats: MapStatEntry[];
+}) {
+  const players = team.players;
+
+  return (
+    <GlassCard hover={false} className="rounded-2xl overflow-hidden border border-white/10">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm data-table">
+          <thead>
+            <tr className="border-b border-white/10">
+              <th
+                rowSpan={2}
+                className="text-left py-4 px-5 font-semibold text-gray-400 uppercase tracking-wider text-xs sticky left-0 bg-bg-base/90 z-20 min-w-[110px]"
+              >
+                Map
+              </th>
+              <th colSpan={2} className="text-center py-4 px-4 font-semibold text-cs2-orange uppercase tracking-wider text-xs">
+                Team
+              </th>
+              <th colSpan={players.length} className="text-center py-4 px-4 font-semibold text-neon-cyan uppercase tracking-wider text-xs border-l border-white/10">
+                Players
+              </th>
+            </tr>
+            <tr className="border-b border-white/10">
+              <th className="text-center py-3 px-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[90px]">
+                Avg
+              </th>
+              <th className="text-center py-3 px-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[80px]">
+                Games
+              </th>
+              {players.map((p) => (
+                <th key={p.steamId} className="text-center py-3 px-3 font-normal min-w-[90px] border-l border-white/5 first:border-l-0">
+                  <span className="text-xs text-gray-400 truncate block max-w-[75px] mx-auto" title={displayName(p)}>
+                    {displayName(p).slice(0, 10)}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {mapStats.map((stat, idx) => (
+              <tr
+                key={stat.mapName}
+                className={clsx(
+                  'border-b border-white/5',
+                  idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.01]',
+                  'hover:bg-white/[0.04] transition-colors'
+                )}
+              >
+                <td className="py-4 px-5 font-semibold text-white sticky left-0 bg-bg-base/70 z-10">
+                  {stat.mapName}
+                </td>
+                <td className={clsx('py-3 px-4 text-center', stat.teamAvg !== null && getWinRateBgClass(stat.teamAvg))}>
+                  {stat.teamAvg !== null ? (
+                    <div
+                      className="font-bold font-mono text-lg"
+                      style={{ color: getWinRateColor(stat.teamAvg) }}
+                    >
+                      {stat.teamAvg.toFixed(0)}%
+                    </div>
+                  ) : (
+                    <span className="text-gray-600">—</span>
+                  )}
+                </td>
+                <td className="py-3 px-4 text-center font-mono text-gray-300">
+                  {stat.teamGames > 0 ? `${stat.teamGames}g` : '—'}
+                </td>
+                {stat.playerStats.map(({ player, stats }) => (
+                  <td key={player.steamId} className="py-3 px-3 text-center border-l border-white/5">
+                    {stats && stats.matches > 0 ? (
+                      <div className={clsx('py-2 px-1 rounded', getWinRateBgClass(stats.winRate))}>
+                        <div
+                          className="font-bold font-mono"
+                          style={{ color: getWinRateColor(stats.winRate) }}
+                        >
+                          {stats.winRate.toFixed(0)}%
+                        </div>
+                        <div className="text-[10px] text-gray-500 mt-0.5">{stats.matches}g</div>
+                      </div>
+                    ) : (
+                      <span className="text-gray-600">—</span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </GlassCard>
+  );
 }
 
 export function CompareContent({
   team1,
   team2,
-  mapComparisons,
-  avgDelta,
-  team1Advantages,
-  team2Advantages,
+  team1MapStats,
+  team2MapStats,
   useTop5,
   tournamentId,
   team1Id,
   team2Id,
 }: CompareContentProps) {
+  const deltas = team1MapStats.map((m1) => {
+    const m2 = team2MapStats.find((x) => x.mapName === m1.mapName);
+    const a = m1.teamAvg;
+    const b = m2?.teamAvg ?? null;
+    const delta = a !== null && b !== null ? a - b : null;
+    return {
+      mapName: m1.mapName,
+      team1Avg: a,
+      team2Avg: b,
+      team1Games: m1.teamGames,
+      team2Games: m2?.teamGames ?? 0,
+      delta,
+    };
+  });
+
   return (
     <div className="max-w-5xl mx-auto px-4">
       {/* Navigation */}
@@ -75,85 +210,22 @@ export function CompareContent({
         </Link>
       </motion.div>
 
-      {/* VS Matchup Header */}
-      <motion.div
-        className="mb-8"
-        variants={fadeUpVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <GlassCard hover={false} className="rounded-2xl p-6 md:p-8 overflow-hidden relative border border-white/10">
-          {/* Background glow effects */}
+      {/* Header */}
+      <motion.div variants={fadeUpVariants} initial="hidden" animate="visible" className="mb-6">
+        <GlassCard hover={false} className="rounded-2xl p-6 border border-white/10 overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-r from-cs2-blue/10 via-transparent to-cs2-orange/10 pointer-events-none" />
-
-          <div className="relative grid grid-cols-3 gap-4 items-center">
-            {/* Team 1 */}
-            <motion.div
-              className="text-center"
-              variants={vsTeam1Variants}
-              initial="hidden"
-              animate="visible"
-            >
-              <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-3 rounded-xl bg-cs2-blue/20 border border-cs2-blue/40 flex items-center justify-center glow-blue">
-                <span className="text-2xl md:text-3xl font-bold text-cs2-blue font-display">
-                  {team1.teamName.charAt(0).toUpperCase()}
-                </span>
+          <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-xs text-gray-500 uppercase tracking-widest">Compare</div>
+              <div className="mt-1 font-display font-bold text-white text-xl md:text-2xl truncate">
+                <span className="text-cs2-blue">{team1.teamName}</span>
+                <span className="text-gray-600"> vs </span>
+                <span className="text-cs2-orange">{team2.teamName}</span>
               </div>
-              <h2 className="font-display font-bold text-white text-lg md:text-xl truncate px-2">
-                {team1.teamName}
-              </h2>
-              <p className="text-xs text-gray-500 mt-1">
-                {useTop5 ? 'Top 5 ELO' : `${team1.players.length} players`}
-              </p>
-            </motion.div>
-
-            {/* VS Center */}
-            <motion.div
-              className="text-center"
-              variants={vsTextVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <div className="font-display text-4xl md:text-5xl font-bold text-gray-600 mb-2">
-                VS
+              <div className="mt-2 text-sm text-gray-500">
+                Team avg first, then players. Delta below is explicit per map.
               </div>
-              {avgDelta !== null && (
-                <div className="space-y-1">
-                  <div
-                    className="text-lg font-bold font-mono"
-                    style={{ color: getDeltaColor(avgDelta) }}
-                  >
-                    {avgDelta > 0 ? '+' : ''}{avgDelta.toFixed(1)}%
-                  </div>
-                  <div className="text-xs text-gray-500">avg delta</div>
-                </div>
-              )}
-              <div className="mt-3 flex items-center justify-center gap-2 text-sm">
-                <span className="text-cs2-blue font-bold">{team1Advantages}</span>
-                <span className="text-gray-600">-</span>
-                <span className="text-cs2-orange font-bold">{team2Advantages}</span>
-              </div>
-            </motion.div>
-
-            {/* Team 2 */}
-            <motion.div
-              className="text-center"
-              variants={vsTeam2Variants}
-              initial="hidden"
-              animate="visible"
-            >
-              <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-3 rounded-xl bg-cs2-orange/20 border border-cs2-orange/40 flex items-center justify-center glow-orange">
-                <span className="text-2xl md:text-3xl font-bold text-cs2-orange font-display">
-                  {team2.teamName.charAt(0).toUpperCase()}
-                </span>
-              </div>
-              <h2 className="font-display font-bold text-white text-lg md:text-xl truncate px-2">
-                {team2.teamName}
-              </h2>
-              <p className="text-xs text-gray-500 mt-1">
-                {useTop5 ? 'Top 5 ELO' : `${team2.players.length} players`}
-              </p>
-            </motion.div>
+            </div>
           </div>
         </GlassCard>
       </motion.div>
@@ -190,80 +262,77 @@ export function CompareContent({
         </Link>
       </motion.div>
 
-      {/* Heatmap Overview */}
-      <motion.div
-        className="mb-8"
-        variants={fadeUpVariants}
-        initial="hidden"
-        animate="visible"
-        transition={{ delay: 0.25 }}
-      >
+      {/* Tables */}
+      <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <SectionHeader title={team1.teamName} subtitle={useTop5 ? 'Top 5 ELO players' : `${team1.players.length} players`} />
+          <DeepMapTable team={team1} mapStats={team1MapStats} />
+        </div>
+        <div className="space-y-3">
+          <SectionHeader title={team2.teamName} subtitle={useTop5 ? 'Top 5 ELO players' : `${team2.players.length} players`} />
+          <DeepMapTable team={team2} mapStats={team2MapStats} />
+        </div>
+      </motion.div>
+
+      {/* Delta List */}
+      <motion.section variants={fadeUpVariants} initial="hidden" animate="visible" transition={{ delay: 0.15 }} className="mt-10">
         <SectionHeader
-          title="Map Overview"
-          subtitle="Quick scan by delta; hover cards below for full tug-of-war detail"
+          title="Delta (Per Map)"
+          subtitle="Δ = Team 1 − Team 2. We also label who is advantaged."
         />
-        <GlassCard hover={false} className="rounded-2xl p-4 border border-white/10">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {mapComparisons.map((m) => (
-              <div
-                key={m.map}
-                className="relative rounded-xl border border-white/10 bg-white/5 p-3 overflow-hidden"
-              >
-                <div
-                  className="absolute inset-0 opacity-50 pointer-events-none"
-                  style={{ background: deltaBg(m.delta) }}
-                />
-                <div className="relative">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="font-display font-bold text-white">{m.map}</div>
-                    <DeltaBadge value={m.delta} size="sm" />
+
+        <div className="space-y-2">
+          {deltas.map((d) => {
+            const has = d.delta !== null;
+            const tone = has ? deltaTone(d.delta as number) : { text: 'text-gray-500', bg: 'bg-white/5 border-white/10' };
+            const fav =
+              !has
+                ? null
+                : (d.delta as number) > 0
+                ? { name: team1.teamName, color: 'text-cs2-blue' }
+                : (d.delta as number) < 0
+                ? { name: team2.teamName, color: 'text-cs2-orange' }
+                : { name: 'Even', color: 'text-gray-300' };
+
+            return (
+              <div key={d.mapName} className="glass rounded-xl p-4 border border-white/10">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="font-display font-bold text-white">{d.mapName}</div>
+                    <div className="mt-1 text-xs text-gray-500">
+                      <span className="text-cs2-blue font-mono">
+                        {d.team1Avg === null ? '—' : `${Math.round(d.team1Avg)}%`}
+                      </span>
+                      <span className="text-gray-600"> vs </span>
+                      <span className="text-cs2-orange font-mono">
+                        {d.team2Avg === null ? '—' : `${Math.round(d.team2Avg)}%`}
+                      </span>
+                      <span className="text-gray-600"> • </span>
+                      <span className="font-mono">{d.team1Games}g</span>
+                      <span className="text-gray-600"> / </span>
+                      <span className="font-mono">{d.team2Games}g</span>
+                    </div>
                   </div>
-                  <div className="mt-2 flex items-center justify-between text-xs">
-                    <span className="font-mono text-cs2-blue">
-                      {m.team1WinRate === null ? '—' : `${Math.round(m.team1WinRate)}%`}
+
+                  <div className="flex items-center gap-2">
+                    <span className={clsx('inline-flex items-center px-3 py-1.5 rounded-full border text-sm font-mono', tone.bg, tone.text)}>
+                      {has ? `Δ ${(d.delta as number) > 0 ? '+' : ''}${(d.delta as number).toFixed(0)}%` : 'Δ —'}
                     </span>
-                    <span className="text-gray-600">vs</span>
-                    <span className="font-mono text-cs2-orange">
-                      {m.team2WinRate === null ? '—' : `${Math.round(m.team2WinRate)}%`}
-                    </span>
+                    {fav && (
+                      <span className={clsx('text-sm text-gray-400')}>
+                        fav:{' '}
+                        <span className={clsx('font-semibold', fav.color)}>
+                          {fav.name}
+                        </span>
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </GlassCard>
-      </motion.div>
-
-      {/* Map Comparisons */}
-      <motion.div
-        className="space-y-3"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {mapComparisons.map((comparison, index) => (
-          <motion.div
-            key={comparison.map}
-            className="glass rounded-xl p-4 md:p-5"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 + index * 0.05 }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-white">{comparison.map}</h3>
-              <DeltaBadge value={comparison.delta} size="sm" />
-            </div>
-
-            <TugOfWarBar
-              team1Value={comparison.team1WinRate}
-              team2Value={comparison.team2WinRate}
-              team1Label={team1.teamName.slice(0, 10)}
-              team2Label={team2.teamName.slice(0, 10)}
-              animated={true}
-            />
-          </motion.div>
-        ))}
-      </motion.div>
+            );
+          })}
+        </div>
+      </motion.section>
 
       {/* Quick Links */}
       <motion.div
@@ -299,7 +368,7 @@ export function CompareContent({
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
       >
-        <p>Delta = Team 1 - Team 2. <span className="text-green-500">Positive</span> = Team 1 advantage.</p>
+        <p>Tables show team averages first, then players. Delta labels the favored team per map.</p>
       </motion.footer>
     </div>
   );

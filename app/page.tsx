@@ -30,7 +30,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-[90vh] flex flex-col">
+    <div className="min-h-[90vh] flex flex-col relative overflow-hidden">
       {/* Hero Section */}
       <motion.div
         className="flex-1 flex flex-col items-center justify-center px-4 pt-8 pb-16"
@@ -38,15 +38,31 @@ export default function Home() {
         initial="hidden"
         animate="visible"
       >
+        {/* Neon frame */}
+        <motion.div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-24 mx-auto h-[320px] max-w-5xl rounded-[32px] border border-white/10"
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          style={{
+            boxShadow:
+              '0 0 0 1px rgba(255,107,0,0.08), 0 0 60px rgba(255,107,0,0.12), 0 0 80px rgba(0,255,224,0.06)',
+          }}
+        />
+
         {/* Logo/Title */}
         <motion.div variants={fadeUpVariants} className="text-center mb-12">
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-4">
-            <span className="gradient-text-orange text-glow-orange">CS2</span>
+            <span className="gradient-text-orange-animated text-glow-orange">CS2</span>
             <span className="text-white"> INTEL</span>
           </h1>
           <p className="text-gray-400 text-lg md:text-xl tracking-wide">
-            Scout your opponents with FACEIT stats
+            Scout your opponents with <span className="text-neon-cyan">FACEIT</span> map stats
           </p>
+          <div className="mt-4 text-xs text-gray-600 font-mono">
+            Paste a Challengermode tournament ID → pick team → read map pool
+          </div>
         </motion.div>
 
         {/* Search Card */}
@@ -54,7 +70,15 @@ export default function Home() {
           variants={fadeUpVariants}
           className="w-full max-w-lg"
         >
-          <GlassCard hover={false} className="rounded-2xl p-6 md:p-8 glow-orange-sm">
+          <GlassCard hover={false} className="rounded-2xl p-6 md:p-8 glow-orange-sm border border-white/10 relative overflow-hidden">
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 opacity-60 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(circle at 20% 20%, rgba(0,255,224,0.10) 0%, transparent 45%), radial-gradient(circle at 80% 10%, rgba(168,85,247,0.10) 0%, transparent 40%), radial-gradient(circle at 60% 90%, rgba(255,107,0,0.12) 0%, transparent 55%)',
+              }}
+            />
             <form onSubmit={handleSubmit} className="space-y-4">
               <Input
                 id="tournamentId"
@@ -71,7 +95,7 @@ export default function Home() {
                 type="submit"
                 disabled={loading || !tournamentId.trim()}
                 size="lg"
-                className="w-full hover:scale-[1.01] active:scale-[0.99]"
+                className="w-full hover:scale-[1.01] active:scale-[0.99] relative"
               >
                 {loading ? (
                   <span className="flex items-center justify-center gap-2">

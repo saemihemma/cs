@@ -15,6 +15,29 @@ const FACEIT_API_URL = 'https://open.faceit.com/data/v4';
 // Cache TTL: 24 hours
 const PLAYER_CACHE_TTL = 24 * 60 * 60 * 1000;
 
+function parseNumberOrNull(value: string | undefined): number | null {
+  if (!value) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? num : null;
+}
+
+function parseKdRatio(lifetime: Record<string, string>): number | null {
+  const candidates = [
+    'K/D Ratio',
+    'K/D',
+    'K/D ratio',
+    'Average K/D Ratio',
+    'Average K/D',
+  ] as const;
+
+  for (const key of candidates) {
+    const parsed = parseNumberOrNull(lifetime[key]);
+    if (parsed !== null) return parsed;
+  }
+
+  return null;
+}
+
 function getApiKey(): string {
   const key = process.env.FACEIT_API_KEY;
   if (!key) {
@@ -93,9 +116,9 @@ export async function getFormattedPlayerStats(playerId: string, nickname: string
     nickname,
     skillLevel: 0, // Filled from player lookup
     elo: 0, // Filled from player lookup
+    kdRatio: parseKdRatio(stats.lifetime),
     mapStats,
     totalMatches: parseInt(stats.lifetime.Matches || '0', 10),
-    overallWinRate: parseFloat(stats.lifetime['Win Rate %'] || '0'),
   };
 }
 

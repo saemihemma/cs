@@ -11,7 +11,7 @@ export interface PlayerIntel {
   faceitLevel: number;
   faceitElo: number;
   totalMatches: number;
-  overallWinRate: number;
+  kdRatio: number | null;
   mapStats: MapStats[];
 }
 

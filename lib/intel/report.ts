@@ -81,7 +81,7 @@ async function generateTeamIntel(lineup: TournamentLineup): Promise<TeamIntel> {
         faceitLevel: 0,
         faceitElo: 0,
         totalMatches: 0,
-        overallWinRate: 0,
+        kdRatio: null,
         mapStats: [],
       });
       continue;
@@ -97,7 +97,7 @@ async function generateTeamIntel(lineup: TournamentLineup): Promise<TeamIntel> {
         faceitLevel: stats.skillLevel,
         faceitElo: stats.elo,
         totalMatches: stats.totalMatches,
-        overallWinRate: stats.overallWinRate,
+        kdRatio: stats.kdRatio,
         mapStats: stats.mapStats,
       });
     } else {
@@ -108,7 +108,7 @@ async function generateTeamIntel(lineup: TournamentLineup): Promise<TeamIntel> {
         faceitLevel: 0,
         faceitElo: 0,
         totalMatches: 0,
-        overallWinRate: 0,
+        kdRatio: null,
         mapStats: [],
       });
     }

@@ -53,7 +53,7 @@ async function main() {
 
         if (stats) {
           console.log(`  FACEIT: ${stats.nickname} | Level ${stats.skillLevel} | ELO ${stats.elo}`);
-          console.log(`  Overall: ${stats.totalMatches} matches, ${stats.overallWinRate}% win rate`);
+          console.log(`  Summary: ${stats.totalMatches} matches | K/D ${stats.kdRatio ?? '—'}`);
 
           // Show top 5 maps
           console.log('  Map Stats:');

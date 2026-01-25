@@ -3,14 +3,13 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { containerVariants, fadeUpVariants, gridContainerVariants, gridItemVariants } from '@/lib/design/animations';
-import { FaceitLevel } from '@/components/data/FaceitLevel';
+import { fadeUpVariants } from '@/lib/design/animations';
+import { FaceitLevelBadge } from '@/components/data/FaceitLevel';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { SectionHeader } from '@/components/ui/SectionHeader';
 import { StatPill } from '@/components/ui/StatPill';
 import { Select } from '@/components/ui/Select';
-import { MapPoolHeatmap } from '@/components/intel/MapPoolHeatmap';
-import { PlayerThreats } from '@/components/intel/PlayerThreats';
+import { clsx } from 'clsx';
 
 interface Player {
   steamId: string;
@@ -20,7 +19,7 @@ interface Player {
   faceitLevel: number;
   faceitElo: number;
   totalMatches: number;
-  overallWinRate: number;
+  kdRatio: number | null;
   mapStats: Array<{ map: string; matches: number; wins: number; winRate: number }>;
 }
 
@@ -70,6 +69,7 @@ function getWinRateBgClass(winRate: number): string {
 
 export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, otherTeams = [] }: IntelContentProps) {
   const router = useRouter();
+  const players = team.players;
 
   return (
     <div className="max-w-[1600px] mx-auto px-4">
@@ -149,7 +149,7 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
         </GlassCard>
       </motion.div>
 
-      {/* Map Pool Heatmap */}
+      {/* Player Overview */}
       <motion.section
         variants={fadeUpVariants}
         initial="hidden"
@@ -158,64 +158,71 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
         className="mb-10"
       >
         <SectionHeader
-          title="Map Pool (Quick Read)"
-          subtitle="Weighted team win rate; confidence based on total games"
-          right={<span className="text-xs text-gray-500">Scan first, deep table below</span>}
+          title="Players"
+          subtitle="Quick scan: level, ELO, matches, K/D"
+          right={<span className="text-xs text-gray-500">Sorted by ELO</span>}
         />
-        <MapPoolHeatmap
-          entries={mapStats.map((m) => ({ mapName: m.mapName, teamAvg: m.teamAvg, teamGames: m.teamGames }))}
-        />
-      </motion.section>
 
-      {/* Player Threats */}
-      <motion.section
-        variants={fadeUpVariants}
-        initial="hidden"
-        animate="visible"
-        transition={{ delay: 0.15 }}
-        className="mb-10"
-      >
-        <PlayerThreats players={team.players} />
-      </motion.section>
-
-      {/* Player Roster */}
-      <motion.section
-        className="mb-10"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <SectionHeader title="Roster" subtitle="Sorted by ELO (where available)" />
-
-        <motion.div
-          className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap"
-          variants={gridContainerVariants}
-        >
-          {team.players.map((player) => (
-            <motion.div
-              key={player.steamId}
-              variants={gridItemVariants}
-              className="flex-shrink-0 w-[140px] md:w-auto md:flex-1 md:min-w-[140px] md:max-w-[180px] bg-gray-800/80 border border-gray-600 rounded-xl p-4"
-            >
-              <div className="flex flex-col items-center text-center">
-                {/* FACEIT Level Badge */}
-                <FaceitLevel
-                  level={player.faceitLevel}
-                  elo={player.faceitElo}
-                  size="md"
-                  showElo={true}
-                />
-
-                {/* Player Name */}
-                <div className="mt-3 w-full">
-                  <div className="font-medium text-white text-sm truncate">
-                    {player.faceitNickname || player.username}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+        <GlassCard hover={false} className="rounded-2xl overflow-hidden border border-white/10">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm data-table">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left py-4 px-5 font-semibold text-gray-400 uppercase tracking-wider text-xs sticky left-0 bg-bg-base/90 z-20 min-w-[170px]">
+                    Player
+                  </th>
+                  <th className="text-center py-4 px-3 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[70px]">
+                    Lvl
+                  </th>
+                  <th className="text-right py-4 px-3 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[90px]">
+                    ELO
+                  </th>
+                  <th className="text-right py-4 px-3 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[90px]">
+                    Matches
+                  </th>
+                  <th className="text-right py-4 px-5 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[80px]">
+                    K/D
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {players.map((p, idx) => (
+                  <tr
+                    key={p.steamId}
+                    className={clsx(
+                      'border-b border-white/5',
+                      idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.01]',
+                      'hover:bg-white/[0.04] transition-colors'
+                    )}
+                  >
+                    <td className="py-3.5 px-5 sticky left-0 bg-bg-base/70 z-10">
+                      <div className="min-w-0">
+                        <div className="font-semibold text-white truncate">
+                          {p.faceitNickname || p.username}
+                        </div>
+                        <div className="text-[11px] text-gray-500 font-mono truncate">
+                          {p.username}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-3 text-center">
+                      <FaceitLevelBadge level={p.faceitLevel} />
+                    </td>
+                    <td className="py-3.5 px-3 text-right font-mono text-gray-200">
+                      {p.faceitElo > 0 ? p.faceitElo.toLocaleString() : '—'}
+                    </td>
+                    <td className="py-3.5 px-3 text-right font-mono text-gray-300">
+                      {p.totalMatches > 0 ? p.totalMatches.toLocaleString() : '—'}
+                    </td>
+                    <td className="py-3.5 px-5 text-right font-mono text-gray-200">
+                      {p.kdRatio !== null ? p.kdRatio.toFixed(2) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </GlassCard>
       </motion.section>
 
       {/* Map Statistics */}
@@ -223,27 +230,47 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
         variants={fadeUpVariants}
         initial="hidden"
         animate="visible"
-        transition={{ delay: 0.2 }}
+        transition={{ delay: 0.15 }}
       >
         <SectionHeader
-          title="Map Statistics (Deep Dive)"
-          subtitle="Per-player map win rates; team average is weighted by games"
-          right={<span className="text-xs text-gray-500">Tip: sticky headers + map column</span>}
+          title="Maps (Deep Dive)"
+          subtitle="Team average first, then per-player map win rates"
+          right={<span className="text-xs text-gray-500">Tip: scroll sideways on mobile</span>}
         />
 
         <GlassCard hover={false} className="rounded-2xl overflow-hidden border border-white/10">
           <div className="overflow-x-auto">
             <table className="w-full text-sm data-table">
               <thead>
-                <tr className="border-b border-gray-600">
-                  <th className="text-left py-4 px-5 font-semibold text-gray-300 uppercase tracking-wider text-xs sticky left-0 bg-bg-base/80 z-10 min-w-[110px]">
+                <tr className="border-b border-white/10">
+                  <th
+                    rowSpan={2}
+                    className="text-left py-4 px-5 font-semibold text-gray-400 uppercase tracking-wider text-xs sticky left-0 bg-bg-base/90 z-20 min-w-[110px]"
+                  >
                     Map
                   </th>
-                  <th className="text-center py-4 px-4 font-semibold text-orange-400 uppercase tracking-wider text-xs min-w-[90px]">
-                    Team Avg
+                  <th
+                    colSpan={2}
+                    className="text-center py-4 px-4 font-semibold text-cs2-orange uppercase tracking-wider text-xs"
+                  >
+                    Team
                   </th>
-                  {team.players.map((player) => (
-                    <th key={player.steamId} className="text-center py-4 px-3 font-normal min-w-[80px]">
+                  <th
+                    colSpan={players.length}
+                    className="text-center py-4 px-4 font-semibold text-neon-cyan uppercase tracking-wider text-xs border-l border-white/10"
+                  >
+                    Players
+                  </th>
+                </tr>
+                <tr className="border-b border-white/10">
+                  <th className="text-center py-3 px-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[90px]">
+                    Avg
+                  </th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-400 uppercase tracking-wider text-xs min-w-[80px]">
+                    Games
+                  </th>
+                  {players.map((player) => (
+                    <th key={player.steamId} className="text-center py-3 px-3 font-normal min-w-[90px] border-l border-white/5 first:border-l-0">
                       <span className="text-xs text-gray-400 truncate block max-w-[75px] mx-auto" title={player.faceitNickname || player.username}>
                         {(player.faceitNickname || player.username).slice(0, 10)}
                       </span>
@@ -255,12 +282,16 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                 {mapStats.map((stat, mapIndex) => (
                   <tr
                     key={stat.mapName}
-                    className={`border-b border-white/5 ${mapIndex % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.01]'} hover:bg-white/[0.04] transition-colors`}
+                    className={clsx(
+                      'border-b border-white/5',
+                      mapIndex % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.01]',
+                      'hover:bg-white/[0.04] transition-colors'
+                    )}
                   >
-                    <td className="py-4 px-5 font-semibold text-white sticky left-0 bg-bg-base/60 z-10">
+                    <td className="py-4 px-5 font-semibold text-white sticky left-0 bg-bg-base/70 z-10">
                       {stat.mapName}
                     </td>
-                    <td className={`py-3 px-4 text-center rounded-lg ${stat.teamAvg !== null ? getWinRateBgClass(stat.teamAvg) : ''}`}>
+                    <td className={clsx('py-3 px-4 text-center', stat.teamAvg !== null && getWinRateBgClass(stat.teamAvg))}>
                       {stat.teamAvg !== null ? (
                         <div>
                           <div
@@ -269,16 +300,16 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                           >
                             {stat.teamAvg.toFixed(0)}%
                           </div>
-                          <div className="text-[10px] text-gray-400 mt-0.5">
-                            {stat.teamGames}g
-                          </div>
                         </div>
                       ) : (
                         <span className="text-gray-600">—</span>
                       )}
                     </td>
+                    <td className="py-3 px-4 text-center font-mono text-gray-300">
+                      {stat.teamGames > 0 ? `${stat.teamGames}g` : '—'}
+                    </td>
                     {stat.playerStats.map(({ player, stats }) => (
-                      <td key={player.steamId} className="py-3 px-3 text-center">
+                      <td key={player.steamId} className="py-3 px-3 text-center border-l border-white/5">
                         {stats && stats.matches > 0 ? (
                           <div className={`py-2 px-1 rounded ${getWinRateBgClass(stats.winRate)}`}>
                             <div

@@ -29,9 +29,9 @@ export interface FaceitPlayerStats {
   nickname: string;
   skillLevel: number;
   elo: number;
+  kdRatio: number | null;
   mapStats: MapStats[];
   totalMatches: number;
-  overallWinRate: number;
 }
 
 export interface FaceitMapSegment {

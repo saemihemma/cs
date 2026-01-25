@@ -12,7 +12,7 @@ export interface ThreatPlayer {
   faceitLevel: number;
   faceitElo: number;
   totalMatches: number;
-  overallWinRate: number;
+  kdRatio: number | null;
   mapStats: Array<{ map: string; matches: number; wins: number; winRate: number }>;
 }
 
@@ -35,9 +35,10 @@ export function PlayerThreats({
 
   const grinder = [...players].sort((a, b) => b.totalMatches - a.totalMatches)[0];
 
-  const bestWin = players
-    .filter((p) => p.totalMatches >= 30 && p.overallWinRate > 0)
-    .sort((a, b) => b.overallWinRate - a.overallWinRate)[0] || topElo;
+  const bestKd =
+    players
+      .filter((p) => p.kdRatio !== null)
+      .sort((a, b) => (b.kdRatio ?? 0) - (a.kdRatio ?? 0))[0] || topElo;
 
   const cards = [
     {
@@ -46,16 +47,16 @@ export function PlayerThreats({
       player: topElo,
       pills: [
         { label: 'ELO', value: topElo?.faceitElo ? topElo.faceitElo.toLocaleString() : '—', tone: 'orange' as const },
-        { label: 'WR', value: topElo?.overallWinRate ? `${Math.round(topElo.overallWinRate)}%` : '—', tone: 'neutral' as const },
+        { label: 'K/D', value: topElo?.kdRatio !== null ? topElo.kdRatio.toFixed(2) : '—', tone: 'neutral' as const },
       ],
     },
     {
-      title: 'Best Winrate',
-      subtitle: 'Min 30 matches',
-      player: bestWin,
+      title: 'Best K/D',
+      subtitle: 'Mechanical edge',
+      player: bestKd,
       pills: [
-        { label: 'WR', value: bestWin?.overallWinRate ? `${Math.round(bestWin.overallWinRate)}%` : '—', tone: 'orange' as const },
-        { label: 'Matches', value: bestWin?.totalMatches ? bestWin.totalMatches.toLocaleString() : '—', tone: 'neutral' as const },
+        { label: 'K/D', value: bestKd?.kdRatio !== null ? bestKd.kdRatio.toFixed(2) : '—', tone: 'orange' as const },
+        { label: 'ELO', value: bestKd?.faceitElo ? bestKd.faceitElo.toLocaleString() : '—', tone: 'neutral' as const },
       ],
     },
     {
