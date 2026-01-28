@@ -10,13 +10,16 @@ export function StatPill({
 }: {
   label: string;
   value: React.ReactNode;
-  tone?: 'neutral' | 'orange' | 'blue';
+  tone?: 'neutral' | 'orange' | 'blue' | 'green' | 'cyan' | 'red';
   className?: string;
 }) {
   const tones = {
     neutral: 'bg-white/5 border-white/10 text-gray-300',
-    orange: 'bg-cs2-orange/10 border-cs2-orange/20 text-gray-200',
-    blue: 'bg-cs2-blue/10 border-cs2-blue/20 text-gray-200',
+    orange: 'bg-neon-green/10 border-neon-green/20 text-gray-200', // legacy alias
+    blue: 'bg-neon-cyan/10 border-neon-cyan/20 text-gray-200', // legacy alias
+    green: 'bg-neon-green/10 border-neon-green/20 text-gray-200',
+    cyan: 'bg-neon-cyan/10 border-neon-cyan/20 text-gray-200',
+    red: 'bg-neon-red/10 border-neon-red/20 text-gray-200',
   } as const;
 
   return (

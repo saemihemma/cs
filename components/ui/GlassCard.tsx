@@ -7,7 +7,7 @@ import { clsx } from 'clsx';
 interface GlassCardProps extends HTMLMotionProps<'div'> {
   children: React.ReactNode;
   hover?: boolean;
-  glow?: 'orange' | 'blue' | 'none';
+  glow?: 'orange' | 'blue' | 'green' | 'cyan' | 'red' | 'none';
   className?: string;
 }
 
@@ -19,8 +19,11 @@ export function GlassCard({
   ...props
 }: GlassCardProps) {
   const glowClasses = {
-    orange: 'card-glow-hover',
-    blue: 'hover:shadow-[0_0_30px_rgba(59,130,246,0.2)] hover:border-blue-500/30',
+    green: 'hover:shadow-[0_0_30px_rgba(0,255,65,0.2)] hover:border-neon-green/30',
+    cyan: 'hover:shadow-[0_0_30px_rgba(0,243,255,0.2)] hover:border-neon-cyan/30',
+    red: 'hover:shadow-[0_0_30px_rgba(255,0,60,0.2)] hover:border-neon-red/30',
+    orange: 'hover:shadow-[0_0_30px_rgba(0,255,65,0.2)] hover:border-neon-green/30', // legacy alias
+    blue: 'hover:shadow-[0_0_30px_rgba(0,243,255,0.2)] hover:border-neon-cyan/30', // legacy alias
     none: '',
   };
 

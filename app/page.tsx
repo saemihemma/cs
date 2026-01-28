@@ -47,14 +47,14 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           style={{
             boxShadow:
-              '0 0 0 1px rgba(255,107,0,0.08), 0 0 60px rgba(255,107,0,0.12), 0 0 80px rgba(0,255,224,0.06)',
+              '0 0 0 1px rgba(0,255,65,0.08), 0 0 60px rgba(0,255,65,0.12), 0 0 80px rgba(0,243,255,0.06)',
           }}
         />
 
         {/* Logo/Title */}
         <motion.div variants={fadeUpVariants} className="text-center mb-12">
           <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-4">
-            <span className="gradient-text-orange-animated text-glow-orange">CS2</span>
+            <span className="gradient-text-neon-animated text-glow-green">CS2</span>
             <span className="text-white"> INTEL</span>
           </h1>
           <p className="text-gray-400 text-lg md:text-xl tracking-wide">
@@ -70,13 +70,13 @@ export default function Home() {
           variants={fadeUpVariants}
           className="w-full max-w-lg"
         >
-          <GlassCard hover={false} className="rounded-2xl p-6 md:p-8 glow-orange-sm border border-white/10 relative overflow-hidden">
+          <GlassCard hover={false} className="rounded-2xl p-6 md:p-8 glow-green-sm border border-white/10 relative overflow-hidden">
             <div
               aria-hidden="true"
               className="absolute inset-0 opacity-60 pointer-events-none"
               style={{
                 background:
-                  'radial-gradient(circle at 20% 20%, rgba(0,255,224,0.10) 0%, transparent 45%), radial-gradient(circle at 80% 10%, rgba(168,85,247,0.10) 0%, transparent 40%), radial-gradient(circle at 60% 90%, rgba(255,107,0,0.12) 0%, transparent 55%)',
+                  'radial-gradient(circle at 20% 20%, rgba(0,243,255,0.10) 0%, transparent 45%), radial-gradient(circle at 80% 10%, rgba(168,85,247,0.10) 0%, transparent 40%), radial-gradient(circle at 60% 90%, rgba(0,255,65,0.12) 0%, transparent 55%)',
               }}
             />
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -146,16 +146,16 @@ export default function Home() {
               >
                 <GlassCard
                   hover={false}
-                  className="rounded-xl p-4 border border-white/10 group-hover:border-cs2-orange/40 transition-colors"
+                  className="rounded-xl p-4 border border-white/10 group-hover:border-neon-green/40 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold text-white group-hover:text-cs2-orange transition-colors">
+                      <div className="font-semibold text-white group-hover:text-neon-green transition-colors">
                         {tournament.name}
                       </div>
                       <div className="text-sm text-gray-400">{tournament.subtitle}</div>
                     </div>
-                    <span className="text-gray-400 group-hover:text-cs2-orange text-xl transition-colors">
+                    <span className="text-gray-400 group-hover:text-neon-green text-xl transition-colors">
                       →
                     </span>
                   </div>
@@ -174,7 +174,7 @@ export default function Home() {
         className="text-center py-6 text-xs text-gray-600"
       >
         Data powered by{' '}
-        <span className="text-cs2-orange">FACEIT</span>
+        <span className="text-neon-green">FACEIT</span>
         {' '}&{' '}
         <span className="text-gray-400">Challengermode</span>
       </motion.footer>

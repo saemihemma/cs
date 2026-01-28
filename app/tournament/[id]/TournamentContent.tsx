@@ -30,9 +30,9 @@ function getStatusBadge(state: string) {
   switch (state) {
     case 'RUNNING':
       return {
-        bg: 'bg-green-500/20 border-green-500/40',
-        text: 'text-green-400',
-        glow: 'shadow-[0_0_10px_rgba(34,197,94,0.3)]',
+        bg: 'bg-neon-green/20 border-neon-green/40',
+        text: 'text-neon-green',
+        glow: 'shadow-[0_0_10px_rgba(0,255,65,0.3)]',
       };
     case 'ENDED':
       return {
@@ -42,8 +42,8 @@ function getStatusBadge(state: string) {
       };
     default:
       return {
-        bg: 'bg-yellow-500/20 border-yellow-500/40',
-        text: 'text-yellow-400',
+        bg: 'bg-neon-cyan/20 border-neon-cyan/40',
+        text: 'text-neon-cyan',
         glow: '',
       };
   }
@@ -91,7 +91,7 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
                 <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-cs2-orange" />
+                  <span className="w-2 h-2 rounded-full bg-neon-green" />
                   {lineups.length} teams
                 </span>
                 <div
@@ -134,14 +134,14 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
               <motion.div key={lineup.id} variants={gridItemVariants}>
                 <GlassCard
                   onClick={() => router.push(`/intel/${id}/${lineup.id}`)}
-                  glow="orange"
-                  className="group p-5 h-full border border-white/10 transition-colors hover:border-cs2-orange/40"
+                  glow="green"
+                  className="group p-5 h-full border border-white/10 transition-colors hover:border-neon-green/40"
                   role="button"
                 >
                   <div className="flex items-start gap-4">
                     {/* Team Avatar */}
-                    <div className="w-12 h-12 rounded-lg border border-white/10 bg-bg-surface flex items-center justify-center shrink-0">
-                      <span className="text-lg font-bold text-gray-300">
+                    <div className="w-12 h-12 rounded-lg border border-white/10 bg-bg-surface flex items-center justify-center shrink-0 group-hover:border-neon-green/30 transition-colors">
+                      <span className="text-lg font-bold text-gray-300 group-hover:text-neon-green transition-colors">
                         {lineup.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
@@ -150,14 +150,14 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <h3 className="font-semibold text-white truncate">
+                          <h3 className="font-semibold text-white truncate group-hover:text-neon-green transition-colors">
                             {lineup.name}
                           </h3>
                           <p className="text-sm text-gray-400 mt-1">
                             {lineup.members.length} players
                           </p>
                         </div>
-                        <span className="text-gray-500 group-hover:text-cs2-orange transition-colors text-xl leading-none">
+                        <span className="text-gray-500 group-hover:text-neon-green transition-colors text-xl leading-none">
                           →
                         </span>
                       </div>
@@ -193,7 +193,7 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
         transition={{ delay: 0.5 }}
       >
         <p className="text-xs text-gray-600">
-          Click a team to view their <span className="text-cs2-orange">FACEIT</span> stats
+          Click a team to view their <span className="text-neon-green">FACEIT</span> stats
         </p>
       </motion.footer>
     </div>

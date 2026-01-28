@@ -12,18 +12,18 @@ interface DeltaIndicatorProps {
 }
 
 function getDeltaColor(delta: number): string {
-  if (delta > 5) return '#22C55E'; // strong positive
-  if (delta > 0) return '#84CC16'; // positive
-  if (delta < -5) return '#EF4444'; // strong negative
-  if (delta < 0) return '#F97316'; // negative
+  if (delta > 5) return '#00ff41'; // neon-green (strong positive)
+  if (delta > 0) return '#00f3ff'; // neon-cyan (positive)
+  if (delta < -5) return '#ff003c'; // neon-red (strong negative)
+  if (delta < 0) return '#ff003c'; // neon-red (negative)
   return '#9CA3AF'; // neutral
 }
 
 function getDeltaBgClass(delta: number): string {
-  if (delta > 5) return 'bg-green-500/15';
-  if (delta > 0) return 'bg-green-500/10';
-  if (delta < -5) return 'bg-red-500/15';
-  if (delta < 0) return 'bg-orange-500/10';
+  if (delta > 5) return 'bg-neon-green/15';
+  if (delta > 0) return 'bg-neon-cyan/10';
+  if (delta < -5) return 'bg-neon-red/15';
+  if (delta < 0) return 'bg-neon-red/10';
   return 'bg-gray-500/10';
 }
 
@@ -166,24 +166,26 @@ export function TugOfWarBar({
     <div className={clsx('space-y-2', className)}>
       {/* Bar */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-mono font-bold text-cs2-blue w-12">
+        <span className="text-sm font-mono font-bold text-neon-cyan w-12">
           {team1Value.toFixed(0)}%
         </span>
         <div className="flex-1 h-3 bg-bg-surface rounded-full overflow-hidden flex">
           <motion.div
-            className="h-full bg-gradient-to-r from-cs2-blue to-cs2-blue-bright"
+            className="h-full bg-neon-cyan"
+            style={{ boxShadow: '0 0 8px rgba(0, 243, 255, 0.4)' }}
             initial={animated ? { width: '50%' } : { width: `${team1Percentage}%` }}
             animate={{ width: `${team1Percentage}%` }}
             transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
           />
           <motion.div
-            className="h-full bg-gradient-to-l from-cs2-orange to-cs2-orange-bright"
+            className="h-full bg-neon-red"
+            style={{ boxShadow: '0 0 8px rgba(255, 0, 60, 0.4)' }}
             initial={animated ? { width: '50%' } : { width: `${team2Percentage}%` }}
             animate={{ width: `${team2Percentage}%` }}
             transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
           />
         </div>
-        <span className="text-sm font-mono font-bold text-cs2-orange w-12 text-right">
+        <span className="text-sm font-mono font-bold text-neon-red w-12 text-right">
           {team2Value.toFixed(0)}%
         </span>
       </div>

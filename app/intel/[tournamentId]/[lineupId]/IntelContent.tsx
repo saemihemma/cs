@@ -53,18 +53,43 @@ interface IntelContentProps {
   otherTeams?: OtherTeam[];
 }
 
+// Neon color scheme: >60% green, 40-60% cyan, <40% red
 function getWinRateColor(winRate: number): string {
-  if (winRate >= 55) return '#22C55E';
-  if (winRate >= 50) return '#84CC16';
-  if (winRate >= 45) return '#EAB308';
-  return '#EF4444';
+  if (winRate >= 60) return '#00ff41'; // neon-green
+  if (winRate >= 40) return '#00f3ff'; // neon-cyan
+  return '#ff003c'; // neon-red
 }
 
-function getWinRateBgClass(winRate: number): string {
-  if (winRate >= 55) return 'bg-green-500/25';
-  if (winRate >= 50) return 'bg-lime-500/20';
-  if (winRate >= 45) return 'bg-yellow-500/20';
-  return 'bg-red-500/20';
+function getWinRateTextClass(winRate: number): string {
+  if (winRate >= 60) return 'text-neon-green';
+  if (winRate >= 40) return 'text-neon-cyan';
+  return 'text-neon-red';
+}
+
+function getWinRateBarClass(winRate: number): string {
+  if (winRate >= 60) return 'win-rate-bar-green';
+  if (winRate >= 40) return 'win-rate-bar-cyan';
+  return 'win-rate-bar-red';
+}
+
+function WinRateCell({ winRate, games }: { winRate: number; games: number }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div
+        className="font-bold font-mono text-lg"
+        style={{ color: getWinRateColor(winRate) }}
+      >
+        {winRate.toFixed(0)}%
+      </div>
+      {games > 0 && (
+        <div className="text-[10px] text-gray-500 mt-0.5">{games}g</div>
+      )}
+      <div
+        className={clsx('win-rate-bar', getWinRateBarClass(winRate))}
+        style={{ width: `${Math.min(winRate, 100)}%` }}
+      />
+    </div>
+  );
 }
 
 export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, otherTeams = [] }: IntelContentProps) {
@@ -98,9 +123,9 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
           <div className="flex flex-col lg:flex-row lg:items-start gap-6">
             {/* Team Avatar */}
             <div
-              className="w-20 h-20 rounded-xl bg-bg-surface border border-cs2-orange/40 flex items-center justify-center shrink-0 glow-orange-sm"
+              className="w-20 h-20 rounded-xl bg-bg-surface border border-neon-green/40 flex items-center justify-center shrink-0 glow-green-sm"
             >
-              <span className="text-3xl font-bold text-cs2-orange font-display">
+              <span className="text-3xl font-bold text-neon-green font-display">
                 {team.teamName.charAt(0).toUpperCase()}
               </span>
             </div>
@@ -111,11 +136,11 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                 {team.teamName}
               </h1>
               <div className="flex flex-wrap gap-2">
-                <StatPill label="Players" value={team.players.length} tone="orange" />
+                <StatPill label="Players" value={team.players.length} tone="green" />
                 <StatPill
                   label="Avg ELO"
                   value={avgElo > 0 ? avgElo.toLocaleString() : '—'}
-                  tone="orange"
+                  tone="green"
                 />
                 <StatPill
                   label="Generated"
@@ -190,12 +215,11 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                   <tr
                     key={p.steamId}
                     className={clsx(
-                      'border-b border-white/5',
-                      idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.01]',
-                      'hover:bg-white/[0.04] transition-colors'
+                      'border-b border-white/5 row-hover-glow',
+                      idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-transparent'
                     )}
                   >
-                    <td className="py-3.5 px-5 sticky left-0 bg-bg-base/70 z-10">
+                    <td className="py-3.5 px-5 sticky left-0 bg-bg-base/90 z-10">
                       <div className="min-w-0">
                         <div className="font-semibold text-white truncate">
                           {p.faceitNickname || p.username}
@@ -208,13 +232,13 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                     <td className="py-3.5 px-3 text-center">
                       <FaceitLevelBadge level={p.faceitLevel} />
                     </td>
-                    <td className="py-3.5 px-3 text-right font-mono text-gray-200">
+                    <td className="py-3.5 px-3 text-right font-mono text-neon-cyan">
                       {p.faceitElo > 0 ? p.faceitElo.toLocaleString() : '—'}
                     </td>
                     <td className="py-3.5 px-3 text-right font-mono text-gray-300">
                       {p.totalMatches > 0 ? p.totalMatches.toLocaleString() : '—'}
                     </td>
-                    <td className="py-3.5 px-5 text-right font-mono text-gray-200">
+                    <td className="py-3.5 px-5 text-right font-mono text-neon-green">
                       {p.kdRatio !== null ? p.kdRatio.toFixed(2) : '—'}
                     </td>
                   </tr>
@@ -251,7 +275,7 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                   </th>
                   <th
                     colSpan={2}
-                    className="text-center py-4 px-4 font-semibold text-cs2-orange uppercase tracking-wider text-xs"
+                    className="text-center py-4 px-4 font-semibold text-neon-green uppercase tracking-wider text-xs"
                   >
                     Team
                   </th>
@@ -283,24 +307,16 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                   <tr
                     key={stat.mapName}
                     className={clsx(
-                      'border-b border-white/5',
-                      mapIndex % 2 === 0 ? 'bg-white/[0.02]' : 'bg-white/[0.01]',
-                      'hover:bg-white/[0.04] transition-colors'
+                      'border-b border-white/5 row-hover-glow',
+                      mapIndex % 2 === 0 ? 'bg-white/[0.02]' : 'bg-transparent'
                     )}
                   >
-                    <td className="py-4 px-5 font-semibold text-white sticky left-0 bg-bg-base/70 z-10">
+                    <td className="py-4 px-5 font-display font-bold text-white sticky left-0 bg-bg-base/90 z-10">
                       {stat.mapName}
                     </td>
-                    <td className={clsx('py-3 px-4 text-center', stat.teamAvg !== null && getWinRateBgClass(stat.teamAvg))}>
+                    <td className="py-3 px-4 text-center">
                       {stat.teamAvg !== null ? (
-                        <div>
-                          <div
-                            className="font-bold font-mono text-lg"
-                            style={{ color: getWinRateColor(stat.teamAvg) }}
-                          >
-                            {stat.teamAvg.toFixed(0)}%
-                          </div>
-                        </div>
+                        <WinRateCell winRate={stat.teamAvg} games={0} />
                       ) : (
                         <span className="text-gray-600">—</span>
                       )}
@@ -311,17 +327,7 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                     {stat.playerStats.map(({ player, stats }) => (
                       <td key={player.steamId} className="py-3 px-3 text-center border-l border-white/5">
                         {stats && stats.matches > 0 ? (
-                          <div className={`py-2 px-1 rounded ${getWinRateBgClass(stats.winRate)}`}>
-                            <div
-                              className="font-bold font-mono"
-                              style={{ color: getWinRateColor(stats.winRate) }}
-                            >
-                              {stats.winRate.toFixed(0)}%
-                            </div>
-                            <div className="text-[10px] text-gray-500 mt-0.5">
-                              {stats.matches}g
-                            </div>
-                          </div>
+                          <WinRateCell winRate={stats.winRate} games={stats.matches} />
                         ) : (
                           <span className="text-gray-600">—</span>
                         )}
@@ -343,7 +349,7 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
         transition={{ delay: 0.5 }}
       >
         <span>
-          Data from <span className="text-orange-400">FACEIT</span>
+          Data from <span className="text-neon-green">FACEIT</span>
         </span>
         <span>Generated {new Date(createdAt).toLocaleString()}</span>
       </motion.footer>
