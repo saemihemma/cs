@@ -76,55 +76,49 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
         </Link>
       </motion.div>
 
-      {/* Header */}
+      {/* Header - Compact */}
       <motion.div
-        className="mb-8"
+        className="mb-6"
         variants={fadeUpVariants}
         initial="hidden"
         animate="visible"
       >
-        <GlassCard hover={false} className="rounded-2xl p-6 md:p-8 border border-white/10">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-            <div>
-              <h1 className="font-display text-2xl md:text-3xl font-bold text-white mb-2">
-                {tournament.name}
-              </h1>
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
-                <span className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-neon-green" />
-                  {lineups.length} teams
-                </span>
-                <div
-                  className={clsx(
-                    'inline-flex items-center gap-2 px-3 py-1.5 rounded-full border',
-                    status.bg,
-                    status.glow
-                  )}
-                >
-                  <span className={clsx('w-2 h-2 rounded-full bg-current', status.text)} />
-                  <span className={clsx('text-xs font-medium uppercase tracking-wider', status.text)}>
-                    {tournament.state}
-                  </span>
-                </div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <h1 className="font-display text-xl md:text-2xl font-bold text-white">
+              {tournament.name}
+            </h1>
+            <div className="flex items-center gap-3 text-xs text-gray-500">
+              <span className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-neon-green" />
+                {lineups.length}
+              </span>
+              <div
+                className={clsx(
+                  'inline-flex items-center gap-1.5 px-2 py-1 rounded border text-[10px] uppercase tracking-wider',
+                  status.bg,
+                  status.text
+                )}
+              >
+                {tournament.state}
               </div>
             </div>
-
-            <div className="w-full lg:max-w-sm">
-              <Input
-                label="Find team"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by team name…"
-              />
-            </div>
           </div>
-        </GlassCard>
+
+          <div className="w-full md:max-w-xs">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search teams..."
+            />
+          </div>
+        </div>
       </motion.div>
 
-      {/* Team Grid */}
+      {/* Team Grid - High Density */}
       {filtered.length > 0 ? (
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
           variants={gridContainerVariants}
           initial="hidden"
           animate="visible"
@@ -132,41 +126,36 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
           {filtered.map((lineup) => {
             return (
               <motion.div key={lineup.id} variants={gridItemVariants}>
-                <GlassCard
+                <div
                   onClick={() => router.push(`/intel/${id}/${lineup.id}`)}
-                  glow="green"
-                  className="group p-5 h-full border border-white/10 transition-colors hover:border-neon-green/40"
                   role="button"
+                  className={clsx(
+                    'group glass rounded-lg p-3 cursor-pointer',
+                    'border-2 border-transparent',
+                    'hover:border-neon-green/60 hover:bg-neon-green/10',
+                    'hover:shadow-[inset_0_0_0_1px_rgba(0,255,65,0.2)]',
+                    'transition-all duration-200'
+                  )}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Team Avatar */}
-                    <div className="w-12 h-12 rounded-lg border border-white/10 bg-bg-surface flex items-center justify-center shrink-0 group-hover:border-neon-green/30 transition-colors">
-                      <span className="text-lg font-bold text-gray-300 group-hover:text-neon-green transition-colors">
+                  <div className="flex items-center gap-3">
+                    {/* Compact Avatar */}
+                    <div className="w-8 h-8 rounded bg-bg-surface border border-white/10 flex items-center justify-center shrink-0 group-hover:border-neon-green/30 transition-colors">
+                      <span className="text-sm font-bold text-gray-400 group-hover:text-neon-green transition-colors">
                         {lineup.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
 
-                    {/* Team Info */}
+                    {/* Team Info - Compact */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <h3 className="font-semibold text-white truncate group-hover:text-neon-green transition-colors">
-                            {lineup.name}
-                          </h3>
-                          <p className="text-sm text-gray-400 mt-1">
-                            {lineup.members.length} players
-                          </p>
-                        </div>
-                        <span className="text-gray-500 group-hover:text-neon-green transition-colors text-xl leading-none">
-                          →
-                        </span>
-                      </div>
-                      <div className="mt-3 text-xs text-gray-500">
-                        Open team intel
-                      </div>
+                      <h3 className="font-semibold text-sm text-white truncate group-hover:text-neon-green transition-colors">
+                        {lineup.name}
+                      </h3>
+                      <p className="text-[11px] text-gray-500">
+                        {lineup.members.length} players
+                      </p>
                     </div>
                   </div>
-                </GlassCard>
+                </div>
               </motion.div>
             );
           })}
@@ -185,17 +174,6 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
         </motion.div>
       )}
 
-      {/* Footer */}
-      <motion.footer
-        className="mt-12 pt-6 divider text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-      >
-        <p className="text-xs text-gray-600">
-          Click a team to view their <span className="text-neon-green">FACEIT</span> stats
-        </p>
-      </motion.footer>
     </div>
   );
 }

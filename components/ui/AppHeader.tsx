@@ -19,10 +19,10 @@ function NavLink({
     <Link
       href={href}
       className={clsx(
-        'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+        'px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest transition-colors',
         isActive
-          ? 'bg-bg-surface text-white border border-white/10'
-          : 'text-gray-400 hover:text-white hover:bg-white/5'
+          ? 'text-neon-green'
+          : 'text-gray-500 hover:text-white'
       )}
     >
       {label}
@@ -33,13 +33,16 @@ function NavLink({
 export function AppHeader() {
   return (
     <header className="sticky top-0 z-40">
-      <div className="absolute inset-0 glass-strong border-b border-white/10" />
+      <div 
+        className="absolute inset-0 glass-strong border-b border-neon-green/50" 
+        style={{ boxShadow: '0 1px 12px rgba(0,255,65,0.2)' }}
+      />
       <div className="relative max-w-[1600px] mx-auto px-4">
-        <div className="h-16 flex items-center justify-between">
-          <Link href="/" className="group inline-flex items-center gap-3">
+        <div className="h-12 flex items-center justify-between">
+          <Link href="/" className="group inline-flex items-center gap-2">
             <div className="relative">
-              <div className="absolute inset-0 rounded-lg bg-neon-green/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="relative w-9 h-9 rounded-lg border border-white/10 bg-bg-surface flex items-center justify-center overflow-hidden">
+              <div className="absolute inset-0 rounded bg-neon-green/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative w-7 h-7 rounded border border-neon-green/30 bg-bg-surface flex items-center justify-center overflow-hidden">
                 <motion.div
                   className="absolute inset-0"
                   animate={{
@@ -51,18 +54,15 @@ export function AppHeader() {
                       'radial-gradient(circle at 30% 30%, rgba(0,255,65,0.35) 0%, transparent 60%)',
                   }}
                 />
-                <span className="relative font-display font-bold tracking-tight text-neon-green">
+                <span className="relative font-display font-bold text-sm text-neon-green">
                   C
                 </span>
               </div>
             </div>
 
-            <div className="leading-tight">
-              <div className="font-display font-bold tracking-tight text-white">
-                <span className="gradient-text-neon">CS2</span> Intel
-              </div>
-              <div className="text-[11px] text-gray-500 uppercase tracking-widest">
-                tactical hud
+            <div className="leading-none">
+              <div className="font-display font-bold text-sm tracking-tight text-white">
+                <span className="text-neon-green">CS2</span> INTEL
               </div>
             </div>
           </Link>

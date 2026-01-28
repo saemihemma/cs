@@ -294,9 +294,9 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                     Games
                   </th>
                   {players.map((player) => (
-                    <th key={player.steamId} className="text-center py-3 px-3 font-normal min-w-[90px] border-l border-white/5 first:border-l-0">
-                      <span className="text-xs text-gray-400 truncate block max-w-[75px] mx-auto" title={player.faceitNickname || player.username}>
-                        {(player.faceitNickname || player.username).slice(0, 10)}
+                    <th key={player.steamId} className="text-center py-3 px-4 font-normal min-w-[100px] border-l border-white/5 first:border-l-0">
+                      <span className="text-xs text-gray-400 truncate block max-w-[85px] mx-auto" title={player.faceitNickname || player.username}>
+                        {(player.faceitNickname || player.username).slice(0, 12)}
                       </span>
                     </th>
                   ))}
@@ -325,7 +325,7 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                       {stat.teamGames > 0 ? `${stat.teamGames}g` : '—'}
                     </td>
                     {stat.playerStats.map(({ player, stats }) => (
-                      <td key={player.steamId} className="py-3 px-3 text-center border-l border-white/5">
+                      <td key={player.steamId} className="py-3 px-4 text-center border-l border-white/5 min-w-[100px]">
                         {stats && stats.matches > 0 ? (
                           <WinRateCell winRate={stats.winRate} games={stats.matches} />
                         ) : (

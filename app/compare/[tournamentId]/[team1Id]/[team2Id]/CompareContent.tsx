@@ -196,9 +196,9 @@ function DeepMapTable({
                 Games
               </th>
               {players.map((p) => (
-                <th key={p.steamId} className="text-center py-3 px-3 font-normal min-w-[90px] border-l border-white/5 first:border-l-0">
-                  <span className="text-xs text-gray-400 truncate block max-w-[75px] mx-auto" title={displayName(p)}>
-                    {displayName(p).slice(0, 10)}
+                <th key={p.steamId} className="text-center py-3 px-4 font-normal min-w-[100px] border-l border-white/5 first:border-l-0">
+                  <span className="text-xs text-gray-400 truncate block max-w-[85px] mx-auto" title={displayName(p)}>
+                    {displayName(p).slice(0, 12)}
                   </span>
                 </th>
               ))}
@@ -227,7 +227,7 @@ function DeepMapTable({
                   {stat.teamGames > 0 ? `${stat.teamGames}g` : '—'}
                 </td>
                 {stat.playerStats.map(({ player, stats }) => (
-                  <td key={player.steamId} className="py-3 px-3 text-center border-l border-white/5">
+                  <td key={player.steamId} className="py-3 px-4 text-center border-l border-white/5 min-w-[100px]">
                     {stats && stats.matches > 0 ? (
                       <WinRateCell winRate={stats.winRate} games={stats.matches} />
                     ) : (
@@ -416,10 +416,19 @@ export function CompareContent({
                   delta={d.delta}
                 />
 
-                {/* Team labels under bar */}
-                <div className="flex justify-between mt-2 text-xs text-gray-500">
-                  <span className="text-neon-cyan">{team1.teamName}</span>
-                  <span className="text-neon-red">{team2.teamName}</span>
+                {/* Team labels + EXP DIFF under bar */}
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-xs text-neon-cyan">{team1.teamName}</span>
+                  {/* EXP DIFF - Games Delta */}
+                  {d.team1Games !== d.team2Games && (
+                    <span className={clsx(
+                      'text-[11px] font-mono uppercase tracking-wide',
+                      d.team1Games > d.team2Games ? 'text-neon-cyan/60' : 'text-neon-red/50'
+                    )}>
+                      EXP DIFF: {d.team1Games > d.team2Games ? '+' : ''}{d.team1Games - d.team2Games}g
+                    </span>
+                  )}
+                  <span className="text-xs text-neon-red">{team2.teamName}</span>
                 </div>
               </div>
             );

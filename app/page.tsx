@@ -16,153 +16,145 @@ const QUICK_TOURNAMENTS = [
   },
 ];
 
+// Targeting bracket corner component
+function TargetingBracket({ position }: { position: 'tl' | 'tr' | 'bl' | 'br' }) {
+  const positionClasses = {
+    tl: '-top-2 -left-2 border-l-2 border-t-2',
+    tr: '-top-2 -right-2 border-r-2 border-t-2',
+    bl: '-bottom-2 -left-2 border-l-2 border-b-2',
+    br: '-bottom-2 -right-2 border-r-2 border-b-2',
+  };
+
+  return (
+    <motion.div
+      className={`absolute w-5 h-5 border-neon-green targeting-bracket ${positionClasses[position]}`}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3 }}
+    />
+  );
+}
+
 export default function Home() {
   const router = useRouter();
+  const [showManualInput, setShowManualInput] = useState(false);
   const [tournamentId, setTournamentId] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleManualSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tournamentId.trim()) return;
-
     setLoading(true);
     router.push(`/tournament/${tournamentId.trim()}`);
   };
 
   return (
-    <div className="min-h-[90vh] flex flex-col relative overflow-hidden">
+    <div className="min-h-[85vh] flex flex-col relative overflow-hidden">
       {/* Hero Section */}
       <motion.div
-        className="flex-1 flex flex-col items-center justify-center px-4 pt-8 pb-16"
+        className="flex-1 flex flex-col items-center justify-center px-4 py-12"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
-        {/* Neon frame */}
-        <motion.div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-24 mx-auto h-[320px] max-w-5xl rounded-[32px] border border-white/10"
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          style={{
-            boxShadow:
-              '0 0 0 1px rgba(0,255,65,0.08), 0 0 60px rgba(0,255,65,0.12), 0 0 80px rgba(0,243,255,0.06)',
-          }}
-        />
-
-        {/* Logo/Title */}
-        <motion.div variants={fadeUpVariants} className="text-center mb-12">
-          <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-4">
+        {/* Logo/Title - Compact */}
+        <motion.div variants={fadeUpVariants} className="text-center mb-10">
+          <h1 className="font-display text-4xl md:text-5xl font-bold tracking-tight mb-2">
             <span className="gradient-text-neon-animated text-glow-green">CS2</span>
             <span className="text-white"> INTEL</span>
           </h1>
-          <p className="text-gray-400 text-lg md:text-xl tracking-wide">
-            Scout your opponents with <span className="text-neon-cyan">FACEIT</span> map stats
+          <p className="text-gray-500 text-sm tracking-wide">
+            Scout opponents with <span className="text-neon-cyan">FACEIT</span> stats
           </p>
-          <div className="mt-4 text-xs text-gray-600 font-mono">
-            Paste a Challengermode tournament ID → pick team → read map pool
-          </div>
         </motion.div>
 
-        {/* Search Card */}
-        <motion.div
-          variants={fadeUpVariants}
-          className="w-full max-w-lg"
-        >
-          <GlassCard hover={false} className="rounded-2xl p-6 md:p-8 glow-green-sm border border-white/10 relative overflow-hidden">
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 opacity-60 pointer-events-none"
-              style={{
-                background:
-                  'radial-gradient(circle at 20% 20%, rgba(0,243,255,0.10) 0%, transparent 45%), radial-gradient(circle at 80% 10%, rgba(168,85,247,0.10) 0%, transparent 40%), radial-gradient(circle at 60% 90%, rgba(0,255,65,0.12) 0%, transparent 55%)',
-              }}
-            />
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <Input
-                id="tournamentId"
-                label="Tournament ID"
-                value={tournamentId}
-                onChange={(e) => setTournamentId(e.target.value)}
-                placeholder="e.g., 0317a85e-e080-4b44-..."
-                hint={
-                  'From URL: challengermode.com/s/.../tournaments/[ID]'
-                }
-              />
+        {/* Hero Card - Quick Access with Targeting Brackets */}
+        <motion.div variants={fadeUpVariants} className="w-full max-w-md">
+          {QUICK_TOURNAMENTS.map((tournament) => (
+            <motion.button
+              key={tournament.id}
+              onClick={() => router.push(`/tournament/${tournament.id}`)}
+              className="w-full text-left group relative"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              {/* Targeting Brackets */}
+              <TargetingBracket position="tl" />
+              <TargetingBracket position="tr" />
+              <TargetingBracket position="bl" />
+              <TargetingBracket position="br" />
 
-              <Button
-                type="submit"
-                disabled={loading || !tournamentId.trim()}
-                size="lg"
-                className="w-full hover:scale-[1.01] active:scale-[0.99] relative"
+              <GlassCard
+                hover={false}
+                className="rounded-xl p-6 border-2 border-transparent group-hover:border-neon-green/60 transition-all duration-200 group-hover:shadow-[0_0_30px_rgba(0,255,65,0.15)]"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Loading...
-                  </span>
-                ) : (
-                  'View Teams'
-                )}
-              </Button>
-            </form>
-          </GlassCard>
-        </motion.div>
-
-        {/* Quick Access */}
-        <motion.div variants={fadeUpVariants} className="w-full max-w-lg mt-8">
-          <div className="divider mb-6" />
-          <p className="text-sm text-gray-500 mb-4 uppercase tracking-wider text-center">
-            Quick Access
-          </p>
-          <div className="space-y-3">
-            {QUICK_TOURNAMENTS.map((tournament) => (
-              <motion.button
-                key={tournament.id}
-                onClick={() => router.push(`/tournament/${tournament.id}`)}
-                className="w-full text-left group"
-                whileHover={{ scale: 1.01, y: -2 }}
-                whileTap={{ scale: 0.99 }}
-              >
-                <GlassCard
-                  hover={false}
-                  className="rounded-xl p-4 border border-white/10 group-hover:border-neon-green/40 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold text-white group-hover:text-neon-green transition-colors">
-                        {tournament.name}
-                      </div>
-                      <div className="text-sm text-gray-400">{tournament.subtitle}</div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">
+                      Active Tournament
                     </div>
-                    <span className="text-gray-400 group-hover:text-neon-green text-xl transition-colors">
-                      →
-                    </span>
+                    <div className="font-display font-bold text-xl text-white group-hover:text-neon-green transition-colors">
+                      {tournament.name}
+                    </div>
+                    <div className="text-sm text-gray-400 mt-1">{tournament.subtitle}</div>
                   </div>
-                </GlassCard>
-              </motion.button>
-            ))}
-          </div>
+                  <div className="w-10 h-10 rounded-lg bg-neon-green/10 border border-neon-green/30 flex items-center justify-center group-hover:bg-neon-green/20 transition-colors">
+                    <span className="text-neon-green text-lg">→</span>
+                  </div>
+                </div>
+              </GlassCard>
+            </motion.button>
+          ))}
+        </motion.div>
+
+        {/* Manual ID Fallback - Expandable */}
+        <motion.div 
+          variants={fadeUpVariants} 
+          className="mt-8 text-center"
+        >
+          {!showManualInput ? (
+            <button
+              onClick={() => setShowManualInput(true)}
+              className="text-[11px] text-gray-600 hover:text-gray-400 uppercase tracking-widest transition-colors"
+            >
+              Enter tournament ID manually →
+            </button>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="w-full max-w-sm mx-auto"
+            >
+              <form onSubmit={handleManualSubmit} className="space-y-3">
+                <Input
+                  id="tournamentId"
+                  value={tournamentId}
+                  onChange={(e) => setTournamentId(e.target.value)}
+                  placeholder="Paste tournament ID..."
+                  className="text-center"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowManualInput(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={loading || !tournamentId.trim()}
+                    className="flex-1"
+                  >
+                    {loading ? 'Loading...' : 'Go'}
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          )}
         </motion.div>
       </motion.div>
 
@@ -171,12 +163,9 @@ export default function Home() {
         variants={fadeUpVariants}
         initial="hidden"
         animate="visible"
-        className="text-center py-6 text-xs text-gray-600"
+        className="text-center py-4 text-[10px] text-gray-600 uppercase tracking-widest"
       >
-        Data powered by{' '}
-        <span className="text-neon-green">FACEIT</span>
-        {' '}&{' '}
-        <span className="text-gray-400">Challengermode</span>
+        Powered by <span className="text-neon-green">FACEIT</span> & Challengermode
       </motion.footer>
     </div>
   );

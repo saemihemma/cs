@@ -150,6 +150,16 @@ a {
   100% { transform: translateX(0); }
 }
 
+@keyframes bracket-pulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; box-shadow: 0 0 8px rgba(0,255,65,0.5); }
+}
+
+.targeting-bracket {
+  animation: bracket-pulse 2s ease-in-out infinite;
+  will-change: opacity, box-shadow; /* GPU acceleration */
+}
+
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
