@@ -2,57 +2,77 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { clsx } from 'clsx';
+import { motion } from 'framer-motion';
 
-function getBreadcrumb(pathname: string | null): string {
-  if (!pathname || pathname === '/') return 'AWAITING_TARGET';
-  
-  const parts = pathname.split('/').filter(Boolean);
-  
-  if (parts[0] === 'tournament') {
-    const id = parts[1] || '';
-    return `SCANNING // TOURNAMENT_${id.slice(0, 8).toUpperCase()}...`;
-  }
-  
-  if (parts[0] === 'intel') {
-    return `INTEL_ACTIVE // ANALYZING_ROSTER`;
-  }
-  
-  if (parts[0] === 'compare') {
-    return `BATTLE_FORECAST // CALCULATING_DELTA`;
-  }
-  
-  return `NAVIGATING // ${parts[0].toUpperCase()}`;
+function NavLink({
+  href,
+  label,
+}: {
+  href: string;
+  label: string;
+}) {
+  const pathname = usePathname();
+  const isActive = pathname === href || (href !== '/' && pathname?.startsWith(href));
+
+  return (
+    <Link
+      href={href}
+      className={clsx(
+        'px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest transition-colors',
+        isActive
+          ? 'text-neon-green'
+          : 'text-gray-500 hover:text-white'
+      )}
+    >
+      {label}
+    </Link>
+  );
 }
 
 export function AppHeader() {
-  const pathname = usePathname();
-  const breadcrumb = getBreadcrumb(pathname);
-
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
+    <header className="sticky top-0 z-40">
       <div 
-        className="h-8 glass-strong border-b border-neon-green/30 flex items-center justify-between px-4"
-        style={{ boxShadow: '0 1px 8px rgba(0,255,65,0.15)' }}
-      >
-        {/* Logo/Brand - Left */}
-        <Link href="/" className="font-mono text-[10px] font-bold text-neon-green tracking-wider hover:text-white transition-colors">
-          CS2_INTEL
-        </Link>
+        className="absolute inset-0 glass-strong border-b border-neon-green/50" 
+        style={{ boxShadow: '0 1px 12px rgba(0,255,65,0.2)' }}
+      />
+      <div className="relative max-w-[1600px] mx-auto px-4">
+        <div className="h-12 flex items-center justify-between">
+          <Link href="/" className="group inline-flex items-center gap-2">
+            <div className="relative">
+              <div className="absolute inset-0 rounded bg-neon-green/20 blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="relative w-7 h-7 rounded border border-neon-green/30 bg-bg-surface flex items-center justify-center overflow-hidden">
+                <motion.div
+                  className="absolute inset-0"
+                  animate={{
+                    opacity: [0.15, 0.25, 0.15],
+                  }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                  style={{
+                    background:
+                      'radial-gradient(circle at 30% 30%, rgba(0,255,65,0.35) 0%, transparent 60%)',
+                  }}
+                />
+                <span className="relative font-display font-bold text-sm text-neon-green">
+                  C
+                </span>
+              </div>
+            </div>
 
-        {/* Status + Breadcrumbs - Right */}
-        <div className="flex items-center gap-3">
-          {/* System Active Dot */}
-          <span className="relative flex items-center justify-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-neon-green" />
-            <span className="absolute w-1.5 h-1.5 rounded-full bg-neon-green animate-ping opacity-75" />
-          </span>
-          
-          {/* Breadcrumb */}
-          <span className="font-mono text-[10px] text-gray-500 tracking-wider">
-            {breadcrumb}
-          </span>
+            <div className="leading-none">
+              <div className="font-display font-bold text-sm tracking-tight text-white">
+                <span className="text-neon-green">CS2</span> INTEL
+              </div>
+            </div>
+          </Link>
+
+          <nav className="hidden sm:flex items-center gap-1">
+            <NavLink href="/" label="Home" />
+          </nav>
         </div>
       </div>
     </header>
   );
 }
+

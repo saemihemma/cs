@@ -82,66 +82,77 @@ function WinRateCell({ winRate, games }: { winRate: number; games: number }) {
   );
 }
 
-// Battle Forecast Bar - Dual-sided horizontal bar with EXP DIFF watermark
-function BattleForecastBar({ 
-  team1Advantage, 
-  expDiff,
-  team1Avg,
-  team2Avg
+// Tug-of-war bar component
+function TugOfWarBar({ 
+  team1Avg, 
+  team2Avg, 
+  team1Name, 
+  team2Name,
+  delta 
 }: { 
-  team1Advantage: number | null; 
-  expDiff: number;
-  team1Avg: number | null;
+  team1Avg: number | null; 
   team2Avg: number | null;
+  team1Name: string;
+  team2Name: string;
+  delta: number | null;
 }) {
-  if (team1Advantage === null) {
-    return (
-      <div className="relative w-full h-8 bg-black/40 border-x border-white/10 overflow-hidden flex items-center justify-center">
-        <span className="text-[10px] font-mono text-gray-600">NO_DATA</span>
-      </div>
-    );
+  if (delta === null || team1Avg === null || team2Avg === null) {
+    return <div className="h-3 bg-bg-surface rounded-full opacity-30" />;
   }
 
-  const isTeam1Favored = team1Advantage > 0;
-  const advantageValue = Math.abs(team1Advantage);
-  
+  // Bar extends from center. Max delta clamped to ±30% for visual scaling
+  const clampedDelta = Math.max(-30, Math.min(30, delta));
+  const barWidth = Math.abs(clampedDelta) * 1.5; // Scale for visual effect
+  const isTeam1Favored = delta > 0;
+  const isEven = delta === 0;
+
   return (
-    <div className="relative w-full h-8 bg-black/40 border-x border-white/10 overflow-hidden">
-      {/* Center Divider */}
-      <div className="absolute left-1/2 top-0 w-[1px] h-full bg-white/20 z-10" />
+    <div className="relative h-3 w-full">
+      {/* Background track */}
+      <div className="absolute inset-0 bg-bg-surface rounded-full" />
       
-      {/* Dynamic Fill */}
-      {advantageValue > 0 && (
-        <div 
+      {/* Center line */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-white/30 transform -translate-x-1/2 z-10" />
+      
+      {/* Fill bar - extends left (team1) or right (team2) from center */}
+      {!isEven && (
+        <div
           className={clsx(
-            'absolute top-0 h-full transition-all duration-700 ease-out',
+            'absolute top-0 h-full rounded-full transition-all duration-500',
             isTeam1Favored 
-              ? 'right-1/2 bg-neon-cyan shadow-[0_0_12px_rgba(0,243,255,0.4)]' 
-              : 'left-1/2 bg-neon-red shadow-[0_0_12px_rgba(255,0,60,0.4)]'
+              ? 'right-1/2 bg-neon-cyan' 
+              : 'left-1/2 bg-neon-red'
           )}
-          style={{ width: `${Math.min(advantageValue * 1.5, 50)}%` }}
+          style={{ 
+            width: `${barWidth}%`,
+            boxShadow: isTeam1Favored 
+              ? '0 0 12px rgba(0, 243, 255, 0.4)' 
+              : '0 0 12px rgba(255, 0, 60, 0.4)'
+          }}
         />
       )}
-      
-      {/* EXP DIFF Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <span className={clsx(
-          'text-[10px] font-mono uppercase opacity-50 mix-blend-overlay',
-          expDiff !== 0 ? (expDiff > 0 ? 'text-neon-cyan' : 'text-neon-red') : 'text-gray-400'
-        )}>
-          EXP DIFF: {expDiff > 0 ? '+' : ''}{expDiff}G
-        </span>
-      </div>
+    </div>
+  );
+}
 
-      {/* Team Win Rates at edges */}
-      <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none">
-        <span className="text-[10px] font-mono text-neon-cyan/80">
-          {team1Avg !== null ? `${Math.round(team1Avg)}%` : '—'}
-        </span>
-        <span className="text-[10px] font-mono text-neon-red/80">
-          {team2Avg !== null ? `${Math.round(team2Avg)}%` : '—'}
-        </span>
-      </div>
+function FavoredBadge({ 
+  teamName, 
+  delta, 
+  isTeam1 
+}: { 
+  teamName: string; 
+  delta: number; 
+  isTeam1: boolean 
+}) {
+  const absDelta = Math.abs(delta);
+  
+  return (
+    <div className={clsx(
+      'badge-favored',
+      isTeam1 ? 'badge-favored-team1' : 'badge-favored-team2'
+    )}>
+      <span className="font-display font-bold">{teamName}</span>
+      <span className="opacity-75">+{absDelta.toFixed(0)}%</span>
     </div>
   );
 }
@@ -185,9 +196,9 @@ function DeepMapTable({
                 Games
               </th>
               {players.map((p) => (
-                <th key={p.steamId} className="text-center py-3 px-4 font-mono w-[140px] min-w-[140px] border-l border-white/5 first:border-l-0">
-                  <span className="text-[10px] text-gray-400 truncate block max-w-[120px] mx-auto" title={displayName(p)}>
-                    {displayName(p).slice(0, 14)}
+                <th key={p.steamId} className="text-center py-3 px-4 font-normal min-w-[100px] border-l border-white/5 first:border-l-0">
+                  <span className="text-xs text-gray-400 truncate block max-w-[85px] mx-auto" title={displayName(p)}>
+                    {displayName(p).slice(0, 12)}
                   </span>
                 </th>
               ))}
@@ -198,8 +209,8 @@ function DeepMapTable({
               <tr
                 key={stat.mapName}
                 className={clsx(
-                  'border-b border-white/5 row-scan-hover',
-                  idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-transparent'
+                  'border-b border-white/5 row-hover-glow',
+                  idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-transparent'
                 )}
               >
                 <td className="py-4 px-5 font-display font-bold text-white sticky left-0 bg-bg-base/90 z-10">
@@ -216,7 +227,7 @@ function DeepMapTable({
                   {stat.teamGames > 0 ? `${stat.teamGames}g` : '—'}
                 </td>
                 {stat.playerStats.map(({ player, stats }) => (
-                  <td key={player.steamId} className="py-3 px-4 text-center border-l border-white/5 w-[140px] min-w-[140px]">
+                  <td key={player.steamId} className="py-3 px-4 text-center border-l border-white/5 min-w-[100px]">
                     {stats && stats.matches > 0 ? (
                       <WinRateCell winRate={stats.winRate} games={stats.matches} />
                     ) : (
@@ -351,43 +362,73 @@ export function CompareContent({
           subtitle="Bar extends toward the favored team. Cyan = Team 1, Red = Team 2."
         />
 
-        {/* Compact Battle Forecast Grid */}
-        <div className="glass rounded-lg overflow-hidden border border-white/10">
-          {/* Header row */}
-          <div className="flex items-center border-b border-white/10 bg-white/[0.02]">
-            <div className="w-24 px-3 py-2 font-mono text-[10px] text-gray-500">MAP</div>
-            <div className="flex-1 flex items-center">
-              <span className="flex-1 text-center text-[10px] font-mono text-neon-cyan">{team1.teamName}</span>
-              <span className="px-2 text-[10px] text-gray-600">vs</span>
-              <span className="flex-1 text-center text-[10px] font-mono text-neon-red">{team2.teamName}</span>
-            </div>
-          </div>
+        <div className="space-y-3">
+          {deltas.map((d) => {
+            const has = d.delta !== null;
+            const isTeam1Favored = has && (d.delta as number) > 0;
+            const isTeam2Favored = has && (d.delta as number) < 0;
+            const isEven = has && d.delta === 0;
+            const favoredTeam = isTeam1Favored ? team1.teamName : isTeam2Favored ? team2.teamName : null;
 
-          {/* Map rows */}
-          {deltas.map((d, idx) => {
-            const expDiff = d.team1Games - d.team2Games;
-            
             return (
-              <div 
-                key={d.mapName} 
-                className={clsx(
-                  'flex items-center border-b border-white/5 row-scan-hover',
-                  idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-transparent'
-                )}
-              >
-                {/* Map name */}
-                <div className="w-24 px-3 py-3 font-mono text-xs text-white font-bold">
-                  {d.mapName}
+              <div key={d.mapName} className="glass rounded-xl p-5 border border-white/10">
+                {/* Map name and stats row */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                  <div className="min-w-0">
+                    <div className="font-display font-bold text-white text-lg">{d.mapName}</div>
+                    <div className="mt-1 flex items-center gap-3 text-sm">
+                      <span className="text-neon-cyan font-mono">
+                        {d.team1Avg === null ? '—' : `${Math.round(d.team1Avg)}%`}
+                        <span className="text-gray-600 text-xs ml-1">({d.team1Games}g)</span>
+                      </span>
+                      <span className="text-gray-600">vs</span>
+                      <span className="text-neon-red font-mono">
+                        {d.team2Avg === null ? '—' : `${Math.round(d.team2Avg)}%`}
+                        <span className="text-gray-600 text-xs ml-1">({d.team2Games}g)</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Favored badge */}
+                  <div className="flex items-center gap-2">
+                    {favoredTeam && d.delta !== null && (
+                      <FavoredBadge 
+                        teamName={favoredTeam} 
+                        delta={d.delta} 
+                        isTeam1={isTeam1Favored} 
+                      />
+                    )}
+                    {isEven && (
+                      <span className="text-sm text-gray-400 font-display uppercase tracking-wider">Even</span>
+                    )}
+                    {!has && (
+                      <span className="text-sm text-gray-500">No data</span>
+                    )}
+                  </div>
                 </div>
-                
-                {/* Battle Forecast Bar */}
-                <div className="flex-1 px-2">
-                  <BattleForecastBar 
-                    team1Advantage={d.delta} 
-                    expDiff={expDiff}
-                    team1Avg={d.team1Avg}
-                    team2Avg={d.team2Avg}
-                  />
+
+                {/* Tug-of-war bar */}
+                <TugOfWarBar
+                  team1Avg={d.team1Avg}
+                  team2Avg={d.team2Avg}
+                  team1Name={team1.teamName}
+                  team2Name={team2.teamName}
+                  delta={d.delta}
+                />
+
+                {/* Team labels + EXP DIFF under bar */}
+                <div className="flex justify-between items-center mt-2">
+                  <span className="text-xs text-neon-cyan">{team1.teamName}</span>
+                  {/* EXP DIFF - Games Delta */}
+                  {d.team1Games !== d.team2Games && (
+                    <span className={clsx(
+                      'text-[11px] font-mono uppercase tracking-wide',
+                      d.team1Games > d.team2Games ? 'text-neon-cyan/60' : 'text-neon-red/50'
+                    )}>
+                      EXP DIFF: {d.team1Games > d.team2Games ? '+' : ''}{d.team1Games - d.team2Games}g
+                    </span>
+                  )}
+                  <span className="text-xs text-neon-red">{team2.teamName}</span>
                 </div>
               </div>
             );

@@ -215,8 +215,8 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                   <tr
                     key={p.steamId}
                     className={clsx(
-                      'border-b border-white/5 row-scan-hover',
-                      idx % 2 === 0 ? 'bg-white/[0.01]' : 'bg-transparent'
+                      'border-b border-white/5 row-hover-glow',
+                      idx % 2 === 0 ? 'bg-white/[0.02]' : 'bg-transparent'
                     )}
                   >
                     <td className="py-3.5 px-5 sticky left-0 bg-bg-base/90 z-10">
@@ -294,9 +294,9 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                     Games
                   </th>
                   {players.map((player) => (
-                    <th key={player.steamId} className="text-center py-3 px-4 font-mono w-[140px] min-w-[140px] border-l border-white/5 first:border-l-0">
-                      <span className="text-[10px] text-gray-400 truncate block max-w-[120px] mx-auto" title={player.faceitNickname || player.username}>
-                        {(player.faceitNickname || player.username).slice(0, 14)}
+                    <th key={player.steamId} className="text-center py-3 px-4 font-normal min-w-[100px] border-l border-white/5 first:border-l-0">
+                      <span className="text-xs text-gray-400 truncate block max-w-[85px] mx-auto" title={player.faceitNickname || player.username}>
+                        {(player.faceitNickname || player.username).slice(0, 12)}
                       </span>
                     </th>
                   ))}
@@ -307,8 +307,8 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                   <tr
                     key={stat.mapName}
                     className={clsx(
-                      'border-b border-white/5 row-scan-hover',
-                      mapIndex % 2 === 0 ? 'bg-white/[0.01]' : 'bg-transparent'
+                      'border-b border-white/5 row-hover-glow',
+                      mapIndex % 2 === 0 ? 'bg-white/[0.02]' : 'bg-transparent'
                     )}
                   >
                     <td className="py-4 px-5 font-display font-bold text-white sticky left-0 bg-bg-base/90 z-10">
@@ -325,7 +325,7 @@ export function IntelContent({ team, avgElo, mapStats, tournamentId, createdAt, 
                       {stat.teamGames > 0 ? `${stat.teamGames}g` : '—'}
                     </td>
                     {stat.playerStats.map(({ player, stats }) => (
-                      <td key={player.steamId} className="py-3 px-4 text-center border-l border-white/5 w-[140px] min-w-[140px]">
+                      <td key={player.steamId} className="py-3 px-4 text-center border-l border-white/5 min-w-[100px]">
                         {stats && stats.matches > 0 ? (
                           <WinRateCell winRate={stats.winRate} games={stats.matches} />
                         ) : (
