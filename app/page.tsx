@@ -16,18 +16,18 @@ const QUICK_TOURNAMENTS = [
   },
 ];
 
-// Targeting bracket corner component
+// Targeting bracket corner component - CYAN glow
 function TargetingBracket({ position }: { position: 'tl' | 'tr' | 'bl' | 'br' }) {
   const positionClasses = {
-    tl: '-top-2 -left-2 border-l-2 border-t-2',
-    tr: '-top-2 -right-2 border-r-2 border-t-2',
-    bl: '-bottom-2 -left-2 border-l-2 border-b-2',
-    br: '-bottom-2 -right-2 border-r-2 border-b-2',
+    tl: '-top-3 -left-3 border-l-2 border-t-2',
+    tr: '-top-3 -right-3 border-r-2 border-t-2',
+    bl: '-bottom-3 -left-3 border-l-2 border-b-2',
+    br: '-bottom-3 -right-3 border-r-2 border-b-2',
   };
 
   return (
     <motion.div
-      className={`absolute w-5 h-5 border-neon-green targeting-bracket ${positionClasses[position]}`}
+      className={`absolute w-6 h-6 border-neon-cyan targeting-bracket ${positionClasses[position]}`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3 }}
@@ -63,22 +63,21 @@ export default function Home() {
             <span className="gradient-text-neon-animated text-glow-green">CS2</span>
             <span className="text-white"> INTEL</span>
           </h1>
-          <p className="text-gray-500 text-sm tracking-wide">
-            Scout opponents with <span className="text-neon-cyan">FACEIT</span> stats
+          <p className="text-gray-500 text-sm font-mono tracking-wide">
+            TACTICAL_RECONNAISSANCE_SYSTEM
           </p>
         </motion.div>
 
-        {/* Hero Card - Quick Access with Targeting Brackets */}
+        {/* Hero Card - Quick Access with Targeting Brackets + CRT Glitch */}
         <motion.div variants={fadeUpVariants} className="w-full max-w-md">
           {QUICK_TOURNAMENTS.map((tournament) => (
             <motion.button
               key={tournament.id}
               onClick={() => router.push(`/tournament/${tournament.id}`)}
-              className="w-full text-left group relative"
-              whileHover={{ scale: 1.02 }}
+              className="w-full text-left group relative hover-glitch"
               whileTap={{ scale: 0.98 }}
             >
-              {/* Targeting Brackets */}
+              {/* Targeting Brackets - CYAN */}
               <TargetingBracket position="tl" />
               <TargetingBracket position="tr" />
               <TargetingBracket position="bl" />
@@ -86,20 +85,20 @@ export default function Home() {
 
               <GlassCard
                 hover={false}
-                className="rounded-xl p-6 border-2 border-transparent group-hover:border-neon-green/60 transition-all duration-200 group-hover:shadow-[0_0_30px_rgba(0,255,65,0.15)]"
+                className="rounded-lg p-6 border-2 border-transparent group-hover:border-neon-cyan/60 transition-all duration-200 group-hover:shadow-[0_0_30px_rgba(0,243,255,0.2)] group-hover:bg-neon-cyan/5"
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">
-                      Active Tournament
+                    <div className="text-[10px] text-neon-cyan/60 uppercase tracking-widest mb-1 font-mono">
+                      TARGET_ACQUIRED
                     </div>
-                    <div className="font-display font-bold text-xl text-white group-hover:text-neon-green transition-colors">
+                    <div className="font-display font-bold text-xl text-white group-hover:text-neon-cyan transition-colors">
                       {tournament.name}
                     </div>
-                    <div className="text-sm text-gray-400 mt-1">{tournament.subtitle}</div>
+                    <div className="text-sm text-gray-500 mt-1 font-mono">{tournament.subtitle}</div>
                   </div>
-                  <div className="w-10 h-10 rounded-lg bg-neon-green/10 border border-neon-green/30 flex items-center justify-center group-hover:bg-neon-green/20 transition-colors">
-                    <span className="text-neon-green text-lg">→</span>
+                  <div className="w-12 h-12 rounded bg-neon-cyan/10 border border-neon-cyan/30 flex items-center justify-center group-hover:bg-neon-cyan/20 transition-colors">
+                    <span className="text-neon-cyan text-xl font-mono">▶</span>
                   </div>
                 </div>
               </GlassCard>
@@ -107,17 +106,17 @@ export default function Home() {
           ))}
         </motion.div>
 
-        {/* Manual ID Fallback - Expandable */}
+        {/* Terminal Command - _RUN NEW_SCAN */}
         <motion.div 
           variants={fadeUpVariants} 
-          className="mt-8 text-center"
+          className="mt-10 text-center"
         >
           {!showManualInput ? (
             <button
               onClick={() => setShowManualInput(true)}
-              className="text-[11px] text-gray-600 hover:text-gray-400 uppercase tracking-widest transition-colors"
+              className="font-mono text-[11px] text-gray-600 hover:text-neon-cyan transition-colors"
             >
-              Enter tournament ID manually →
+              _RUN NEW_SCAN
             </button>
           ) : (
             <motion.div
@@ -125,13 +124,14 @@ export default function Home() {
               animate={{ opacity: 1, height: 'auto' }}
               className="w-full max-w-sm mx-auto"
             >
+              <div className="font-mono text-[10px] text-neon-cyan/60 mb-2">MANUAL_TARGET_INPUT</div>
               <form onSubmit={handleManualSubmit} className="space-y-3">
                 <Input
                   id="tournamentId"
                   value={tournamentId}
                   onChange={(e) => setTournamentId(e.target.value)}
-                  placeholder="Paste tournament ID..."
-                  className="text-center"
+                  placeholder="PASTE_TOURNAMENT_ID..."
+                  className="text-center font-mono"
                 />
                 <div className="flex gap-2">
                   <Button
@@ -139,17 +139,17 @@ export default function Home() {
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowManualInput(false)}
-                    className="flex-1"
+                    className="flex-1 font-mono text-[10px]"
                   >
-                    Cancel
+                    _ABORT
                   </Button>
                   <Button
                     type="submit"
                     size="sm"
                     disabled={loading || !tournamentId.trim()}
-                    className="flex-1"
+                    className="flex-1 font-mono text-[10px]"
                   >
-                    {loading ? 'Loading...' : 'Go'}
+                    {loading ? '_LOADING...' : '_EXECUTE'}
                   </Button>
                 </div>
               </form>
@@ -163,9 +163,9 @@ export default function Home() {
         variants={fadeUpVariants}
         initial="hidden"
         animate="visible"
-        className="text-center py-4 text-[10px] text-gray-600 uppercase tracking-widest"
+        className="text-center py-4 text-[10px] text-gray-600 font-mono"
       >
-        Powered by <span className="text-neon-green">FACEIT</span> & Challengermode
+        DATA_SOURCE: <span className="text-neon-green">FACEIT_API</span> // CHALLENGERMODE
       </motion.footer>
     </div>
   );

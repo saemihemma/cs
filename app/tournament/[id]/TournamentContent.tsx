@@ -5,7 +5,6 @@ import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { fadeUpVariants, gridContainerVariants, gridItemVariants } from '@/lib/design/animations';
-import { GlassCard } from '@/components/ui/GlassCard';
 import { Input } from '@/components/ui/Input';
 import { clsx } from 'clsx';
 
@@ -32,19 +31,16 @@ function getStatusBadge(state: string) {
       return {
         bg: 'bg-neon-green/20 border-neon-green/40',
         text: 'text-neon-green',
-        glow: 'shadow-[0_0_10px_rgba(0,255,65,0.3)]',
       };
     case 'ENDED':
       return {
         bg: 'bg-gray-700/50 border-gray-600/40',
         text: 'text-gray-400',
-        glow: '',
       };
     default:
       return {
         bg: 'bg-neon-cyan/20 border-neon-cyan/40',
         text: 'text-neon-cyan',
-        glow: '',
       };
   }
 }
@@ -61,64 +57,64 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
   }, [lineups, query]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4">
-      {/* Navigation */}
+    <div className="max-w-7xl mx-auto px-4">
+      {/* Navigation - Terminal Style */}
       <motion.div
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.3 }}
+        className="mb-6"
       >
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-white transition-colors mb-8"
+          className="inline-flex items-center gap-2 text-[11px] font-mono text-gray-500 hover:text-neon-green transition-colors"
         >
-          <span>←</span> Back to Home
+          ← _RETURN_HOME
         </Link>
       </motion.div>
 
-      {/* Header - Compact */}
+      {/* Header - Compact HUD */}
       <motion.div
-        className="mb-6"
+        className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
         variants={fadeUpVariants}
         initial="hidden"
         animate="visible"
       >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <h1 className="font-display text-xl md:text-2xl font-bold text-white">
-              {tournament.name}
-            </h1>
-            <div className="flex items-center gap-3 text-xs text-gray-500">
-              <span className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-neon-green" />
-                {lineups.length}
-              </span>
-              <div
-                className={clsx(
-                  'inline-flex items-center gap-1.5 px-2 py-1 rounded border text-[10px] uppercase tracking-wider',
-                  status.bg,
-                  status.text
-                )}
-              >
-                {tournament.state}
-              </div>
+        <div className="flex items-center gap-4">
+          <h1 className="font-mono text-lg md:text-xl font-bold text-white">
+            {tournament.name}
+          </h1>
+          <div className="flex items-center gap-3 text-[10px] font-mono text-gray-500">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
+              {lineups.length}_UNITS
+            </span>
+            <div
+              className={clsx(
+                'inline-flex items-center px-2 py-0.5 rounded border',
+                status.bg,
+                status.text
+              )}
+            >
+              {tournament.state}
             </div>
           </div>
+        </div>
 
-          <div className="w-full md:max-w-xs">
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search teams..."
-            />
-          </div>
+        <div className="w-full md:max-w-[200px]">
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="SEARCH_TARGET..."
+            className="font-mono text-[11px]"
+          />
         </div>
       </motion.div>
 
-      {/* Team Grid - High Density */}
+      {/* Team Grid - High Density 4-Column */}
       {filtered.length > 0 ? (
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2"
           variants={gridContainerVariants}
           initial="hidden"
           animate="visible"
@@ -130,28 +126,27 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
                   onClick={() => router.push(`/intel/${id}/${lineup.id}`)}
                   role="button"
                   className={clsx(
-                    'group glass rounded-lg p-3 cursor-pointer',
+                    'group glass rounded p-2 cursor-pointer',
                     'border-2 border-transparent',
                     'hover:border-neon-green/60 hover:bg-neon-green/10',
-                    'hover:shadow-[inset_0_0_0_1px_rgba(0,255,65,0.2)]',
                     'transition-all duration-200'
                   )}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {/* Compact Avatar */}
-                    <div className="w-8 h-8 rounded bg-bg-surface border border-white/10 flex items-center justify-center shrink-0 group-hover:border-neon-green/30 transition-colors">
-                      <span className="text-sm font-bold text-gray-400 group-hover:text-neon-green transition-colors">
+                    <div className="w-7 h-7 rounded bg-bg-surface border border-white/10 flex items-center justify-center shrink-0 group-hover:border-neon-green/40 transition-colors">
+                      <span className="text-xs font-bold text-gray-500 group-hover:text-neon-green transition-colors">
                         {lineup.name.charAt(0).toUpperCase()}
                       </span>
                     </div>
 
-                    {/* Team Info - Compact */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm text-white truncate group-hover:text-neon-green transition-colors">
+                    {/* Team Info - Compact with Slide-in */}
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <h3 className="font-mono text-xs text-white truncate group-hover:text-neon-green group-hover:translate-x-1 transition-all duration-200">
                         {lineup.name}
                       </h3>
-                      <p className="text-[11px] text-gray-500">
-                        {lineup.members.length} players
+                      <p className="text-[10px] font-mono text-gray-600">
+                        {lineup.members.length}_UNITS
                       </p>
                     </div>
                   </div>
@@ -162,18 +157,14 @@ export function TournamentContent({ tournament, lineups, id }: TournamentContent
         </motion.div>
       ) : (
         <motion.div
-          className="glass rounded-2xl p-12 text-center"
+          className="glass rounded-lg p-8 text-center"
           variants={fadeUpVariants}
           initial="hidden"
           animate="visible"
         >
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-700/50 flex items-center justify-center">
-            <span className="text-2xl text-gray-500">?</span>
-          </div>
-          <p className="text-gray-500">No teams registered yet</p>
+          <div className="font-mono text-gray-500 text-sm">NO_TARGETS_DETECTED</div>
         </motion.div>
       )}
-
     </div>
   );
 }
